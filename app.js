@@ -35,10 +35,28 @@ const csv = require('csv-parser');
 const Joi = require('joi');
 const dotenv = require('dotenv').config();
 const MongoClient = require('mongodb').MongoClient;
+const { parse } = require('node-html-parser');
+
+// Create router
+const genresRoute = express.Router(),
+      artistsRoute = express.Router(),
+      albumsRoute = express.Router(),
+      tracksRoute = express.Router(),
+      listsRoute = express.Router();
 
 app.use(express.json());
 app.use('/', express.static('static'));
+app.use('/api/genres', genresRoute);
+app.use('/api/artists', artistsRoute);
+app.use('/api/albums', albumsRoute);
+app.use('/api/tracks', tracksRoute);
+app.use('/api/lists', listsRoute);
 
+genresRoute.use(express.json());
+artistsRoute.use(express.json());
+albumsRoute.use(express.json());
+tracksRoute.use(express.json());
+listsRoute.use(express.json());
 
 // Assign port value
 const port = process.env.PORT;
@@ -55,9 +73,13 @@ app.listen(port, () => {
     console.log('Database connection successful ...')
 });
 
+/*
+    Methods to interact with the database
+*/
+
 // Insert one json obj to MongoDB, table name in string, eg. table = "admin"
 function insertOneObj(jsonObj, table){
-    MongoClient.connect(url, function(err, db){
+    MongoClient.connect(process.env.DB_URL, function(err, db){
         if(err) throw err
         var dbo = db.db("lab-4")
         dbo.collection(table).insertOne(jsonObj, function(err, res) {
@@ -70,7 +92,7 @@ function insertOneObj(jsonObj, table){
 
 // Delete one json obj by query from MongoDB Ex: var myquery = {name: "jay"}
 function deleteOneObj(myquery, table){
-    MongoClient.connect(url, function(err, db){
+    MongoClient.connect(process.env.DB_URL, function(err, db){
         if(err) throw err
         var dbo = db.db("lab-4")
         dbo.collection(table).deleteOne(myquery, function(err, res) {
@@ -83,7 +105,7 @@ function deleteOneObj(myquery, table){
 
 // Update one obj to database
 function updateOneObj(myquery, newvalues, table){
-    MongoClient.connect(url, function(err, db){
+    MongoClient.connect(process.env.DB_URL, function(err, db){
         if(err) throw err
         var dbo = db.db("lab-4")
         dbo.collection(table).updateOne(myquery, newvalues, function(err, res) {
@@ -94,35 +116,18 @@ function updateOneObj(myquery, newvalues, table){
     })
 }
 
-
+app.post('/api/playlists', (req, res) => {
+    var test = {name: "jay", tracks: "2,3"}
+    insertOneObj(test, "public_playlist")
+    var myquery = {name: "jay"}
+    res.send(test)
+})
 
 //////////////////  lab 3
-const { parse } = require('node-html-parser');
-
-const genresRoute = express.Router(),
-      artistsRoute = express.Router(),
-      albumsRoute = express.Router(),
-      tracksRoute = express.Router(),
-      listsRoute = express.Router();
-
-
 const genresRes = [],
       artistsRes = [],
       albumsRes = [],
       tracksRes = [];
-
-app.use('/api/genres', genresRoute);
-app.use('/api/artists', artistsRoute);
-app.use('/api/albums', albumsRoute);
-app.use('/api/tracks', tracksRoute);
-app.use('/api/lists', listsRoute);
-
-genresRoute.use(express.json());
-artistsRoute.use(express.json());
-albumsRoute.use(express.json());
-tracksRoute.use(express.json());
-listsRoute.use(express.json());
-
 
 function strip(html){
     let striped = parse(html).childNodes[0]._rawText;
@@ -130,7 +135,7 @@ function strip(html){
 }
 genresRoute.route('/')
     .get((req, res) => {
-        fs.createReadStream('./lab3-data/genres.csv').pipe(csv())
+        fs.createReadStream('./dataset/genres.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => genresRes.push(data))
         .on('end', () => {res.send(JSON.stringify(genresRes, ["genre_id", "title", "parent"])); genresRes.length=0;});
@@ -141,7 +146,7 @@ genresRoute.route('/')
 artistsRoute.route('/id/:artist_id')
     .get((req, res) => {
         const rId = parseInt(req.params.artist_id);
-        fs.createReadStream('./lab3-data/raw_artists.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_artists.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if(parseInt(data.artist_id) === rId) res.send(JSON.stringify(data, ["artist_id", 
         "artist_name", "artist_handle", "tags", "artist_url", "artist_favorites", "artist_comments", "artist_date_created"]));})
@@ -153,7 +158,7 @@ artistsRoute.route('/id/:artist_id')
 tracksRoute.route('/find/:track_id')
     .get((req, res) => {
         const tId = parseInt(req.params.track_id);
-        fs.createReadStream('./lab3-data/raw_tracks.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if(parseInt(data.track_id) === tId) res.send(JSON.stringify(data, ["album_id", 
         "album_title", "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", "track_duration",
@@ -168,7 +173,7 @@ tracksRoute.route('/ttat/:track_title/:album_title')
         const max = 12 
         const tt = strip(req.params.track_title);
         const at = strip(req.params.album_title);
-        fs.createReadStream('./lab3-data/raw_tracks.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if((tracksRes.length<max) && ((tt.length>0 && data.track_title.toLowerCase().includes(tt)) || (at.length>0 && data.album_title.toLowerCase().includes(at)))) tracksRes.push(data);})
         .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
@@ -181,7 +186,7 @@ tracksRoute.route('/tt/:track_title')
     .get((req, res) => {   
         const max = 12 
         const tt = strip(req.params.track_title);
-        fs.createReadStream('./lab3-data/raw_tracks.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if((tracksRes.length<max) && (tt.length>0 && data.track_title.toLowerCase().includes(tt))) tracksRes.push(data);})
         .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
@@ -193,7 +198,7 @@ tracksRoute.route('/at/:album_title')
     .get((req, res) => {   
         const max = 12 
         const at = strip(req.params.album_title);
-        fs.createReadStream('./lab3-data/raw_tracks.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if((tracksRes.length<max) && (at.length>0 && data.album_title.toLowerCase().includes(at))) tracksRes.push(data);})
         .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
@@ -207,7 +212,7 @@ artistsRoute.route('/name/:artist_name')
     .get((req, res) => {   
         const max = 12 
         const name = strip(req.params.artist_name);
-        fs.createReadStream('./lab3-data/raw_artists.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_artists.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if((artistsRes.length<max) && (name.length>0 && data.artist_name.toLowerCase().includes(name))) artistsRes.push(data);})
         .on('end', () => {res.send(JSON.stringify(artistsRes, ["artist_id", "artist_name", "artist_handle",
@@ -239,7 +244,7 @@ listsRoute.route('/write/:name/:id')
         const id = parseInt(req.params.id);
         const path = `./StoredLists/${name}.json`
 
-        fs.createReadStream('./lab3-data/raw_tracks.csv').pipe(csv())
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (row) => {
             if(parseInt(row.track_id) === id) {
