@@ -119,8 +119,13 @@ function updateOneObj(myquery, newvalues, table){
 app.post('/api/playlists', (req, res) => {
     var test = {name: "jay", tracks: "2,3"}
     insertOneObj(test, "public_playlist")
-    var myquery = {name: "jay"}
     res.send(test)
+})
+
+app.delete('/api/playlists', (req, res) => {
+    var myquery = {name: "jay"}
+    deleteOneObj(myquery, 'public_playlist')
+    res.send(myquery)
 })
 
 //////////////////  lab 3
