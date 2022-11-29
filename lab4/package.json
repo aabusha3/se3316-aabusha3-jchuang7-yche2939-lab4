@@ -10,7 +10,15 @@
   "dependencies": {
     "pinia": "^2.0.26",
     "vue": "^3.2.45",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "joi": "^17.7.0",
+    "mongodb": "^4.12.0",
+    "node-html-parser": "^6.1.4",
+    "passport-jwt": "^4.0.0",
+    "string-similarity": "^4.0.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^3.2.0",
