@@ -36,6 +36,7 @@ const Joi = require('joi');
 const dotenv = require('dotenv').config();
 const MongoClient = require('mongodb').MongoClient;
 const { parse } = require('node-html-parser');
+const cors = require('cors');
 
 // Create router
 const genresRoute = express.Router(),
@@ -45,6 +46,7 @@ const genresRoute = express.Router(),
       listsRoute = express.Router();
 
 app.use(express.json());
+app.use(cors());
 app.use('/', express.static('static'));
 app.use('/api/genres', genresRoute);
 app.use('/api/artists', artistsRoute);

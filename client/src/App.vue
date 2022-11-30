@@ -1,30 +1,27 @@
+<script setup>
+import { ref } from "vue";
+
+const url = 'http://localhost:3000/api/tracks/at/awol';
+const genres = ref([]);
+const getGenres = async function() {
+    const res = await fetch(url);
+    const data = await res.json();
+    genres.value = data;
+    console.log(genres)
+  }
+
+  getGenres();
+</script>
+
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <h1>test</h1>  
+  <ul>
+    <li v-for="genre of genres" :key="genre.id">
+      <h1>{{genre}}</h1>
+    </li>
+  </ul>
 </template>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
 </style>
