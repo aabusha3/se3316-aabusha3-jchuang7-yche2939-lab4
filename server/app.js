@@ -37,13 +37,15 @@ const dotenv = require('dotenv').config();
 const MongoClient = require('mongodb').MongoClient;
 const { parse } = require('node-html-parser');
 const cors = require('cors');
+const { ObjectID } = require('bson');
 
 // Create router
 const genresRoute = express.Router(),
       artistsRoute = express.Router(),
       albumsRoute = express.Router(),
       tracksRoute = express.Router(),
-      listsRoute = express.Router();
+      listsRoute = express.Router(),
+      policyRoute = express.Router();
 
 app.use(express.json());
 app.use(cors());
@@ -53,12 +55,14 @@ app.use('/api/artists', artistsRoute);
 app.use('/api/albums', albumsRoute);
 app.use('/api/tracks', tracksRoute);
 app.use('/api/lists', listsRoute);
+app.use('/api/policies', policyRoute);
 
 genresRoute.use(express.json());
 artistsRoute.use(express.json());
 albumsRoute.use(express.json());
 tracksRoute.use(express.json());
 listsRoute.use(express.json());
+policyRoute.use(express.json());
 
 // Assign port value
 const port = process.env.PORT;
@@ -189,6 +193,21 @@ tracksRoute.route('/ttat/:track_title/:album_title')
     
     });
 
+tracksRoute.route('/angttt/:artist_name/:genre_title/:track_title')
+    .get((req, res) => {   
+        const max = 12 
+        const an = strip(req.params.artist_name);
+        const gt = strip(req.params.genre_title);
+        const tt = strip(req.params.track_title);
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
+        .on('error', (error) => {return res.status(500).send(error.message)})
+        .on('data', (data) => {if((tracksRes.length<max) && ((an.length>0 && data.artist_name.toLowerCase().includes(an)) || (gt.length>0 && data.track_genres.toLowerCase().includes(gt)) || (tt.length>0 && data.track_title.toLowerCase().includes(tt)))) tracksRes.push(data);})
+        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+        "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
+        "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
+    
+    });
+
 tracksRoute.route('/tt/:track_title')
     .get((req, res) => {   
         const max = 12 
@@ -208,6 +227,30 @@ tracksRoute.route('/at/:album_title')
         fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {if((tracksRes.length<max) && (at.length>0 && data.album_title.toLowerCase().includes(at))) tracksRes.push(data);})
+        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+        "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
+        "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
+    });
+
+tracksRoute.route('/gr/:genre_title')
+    .get((req, res) => {   
+        const max = 12 
+        const gr = strip(req.params.genre_title);
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
+        .on('error', (error) => {return res.status(500).send(error.message)})
+        .on('data', (data) => {if((tracksRes.length<max) && (gr.length>0 && data.track_genres.toLowerCase().includes(gr))) tracksRes.push(data);})
+        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+        "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
+        "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
+    });
+
+tracksRoute.route('/an/:artist_name')
+    .get((req, res) => {   
+        const max = 12 
+        const at = strip(req.params.artist_name);
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
+        .on('error', (error) => {return res.status(500).send(error.message)})
+        .on('data', (data) => {if((tracksRes.length<max) && (at.length>0 && data.artist_name.toLowerCase().includes(at))) tracksRes.push(data);})
         .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
         "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
         "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
@@ -369,3 +412,129 @@ listsRoute.route('/list')
         });
     });
 ////////////////////////
+var ObjectId = require('mongodb').ObjectId; 
+
+policyRoute.route('/pp')
+    .get((req, res) => {
+        //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("privacy_policy").find({}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+    })
+
+policyRoute.route('/pp/:_id')
+.get((req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        //choose collection and returns entire table
+        dbo.collection("privacy_policy").find({_id: o_id}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+.put((req, res) => {
+    var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        var myquery = {_id: o_id}
+        var newValues = {$set: {description: req.body.description}}
+        //choose collection and returns entire table
+        updateOneObj(myquery, newValues, "privacy_policy")
+        res.send(newValues)
+})
+
+policyRoute.route('/aup')
+    .get((req, res) => {
+        //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("aup").find({}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+    })
+
+policyRoute.route('/aup/:_id')
+.get((req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        //choose collection and returns entire table
+        dbo.collection("aup").find({_id: o_id}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+.put((req, res) => {
+    var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        var myquery = {_id: o_id}
+        var newValues = {$set: {description: req.body.description}}
+        //choose collection and returns entire table
+        updateOneObj(myquery, newValues, "aup")
+        res.send(newValues)
+})
+
+policyRoute.route('/dmca')
+    .get((req, res) => {
+        //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("dmca").find({}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+    })
+
+policyRoute.route('/dmca/:_id')
+.get((req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        //choose collection and returns entire table
+        dbo.collection("dmca").find({_id: o_id}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+.put((req, res) => {
+    var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        var myquery = {_id: o_id}
+        var newValues = {$set: {description: req.body.description}}
+        //choose collection and returns entire table
+        updateOneObj(myquery, newValues, "dmca")
+        res.send(newValues)
+})
+
+
