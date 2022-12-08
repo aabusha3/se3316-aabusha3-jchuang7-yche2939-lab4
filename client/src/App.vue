@@ -17,10 +17,11 @@ const getGenres = async function() {
 <template>
   <div v-if="store.public && !store.admin">
     <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/login">Login</router-link> |
-      <router-link to="/search">Search</router-link>
+      <router-link to="/">Home</router-link> | 
+      <router-link to="/about">About</router-link> | 
+      <router-link to="/login">Login</router-link> | 
+      <router-link to="/search">Search</router-link> | 
+    <router-link to="/userHomePage">User</router-link>
     </nav>
     <router-view/>
 

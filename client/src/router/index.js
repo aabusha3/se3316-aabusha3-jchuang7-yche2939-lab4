@@ -88,6 +88,16 @@ const routes = [
     path: '/createpp',
     name: 'createpp',
     component: () => import(/* webpackChunkName: "about" */ '../views/CreatePPView.vue')
+  },
+  {
+    path: '/userHomePage',
+    name: 'userHomePage',
+    component: () => import( '../views/UserHomePage.vue')
+  },
+  {
+    path: '/createNewList',
+    name: 'createNewList',
+    component: () => import( '../views/CreateNewList.vue')
   }
 ]
 
