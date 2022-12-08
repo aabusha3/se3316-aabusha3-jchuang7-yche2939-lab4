@@ -1,11 +1,14 @@
 <template>
+    <!--use v-for bindings to display the list information-->
    <div v-for="list of public_pp" :key="list.id">
       <h2>
+        <!--use list rendering to access the json object passed from the backend-->
          {{list.name}}
       </h2>
       <p>{{list.description}}</p>
    </div>
    <hr>
+   <!--Only for admin users-->
    <div v-if="store.admin">
        Which section do you want to edit? (enter 1-9) <input v-model="inputNumber" type="number">
        <button @click="getPById($event)">Search</button>
@@ -19,7 +22,9 @@
 import { ref, onMounted} from 'vue';
  import { store } from './../store/index.js'
 const URL = "http://localhost:3000/api/"
+  // Declarative rendering
 const public_pp = ref(null)
+  // Get all sections of the DMCA
 async function getPP(){
    await fetch(URL+"policies/pp")
    .then((res) => {
@@ -30,16 +35,19 @@ async function getPP(){
         return res.json()
     })
     .then(data => {
+        // Assign data to 
         public_pp.value = data
         console.log(public_pp.value[0].name)
         return public_pp
     })
 }
+ // Call this method when page loads
 onMounted(() => {getPP()})
 
 const inputNumber = ref(null)
 const smText = ref(null)
 const smID = ref(null)
+// Triggered by a mouse event and send id and description to the variable
 function getPById(){
     if(this.inputNumber<1 || this.inputNumber>10){
         alert("Invalid Input!")
@@ -50,6 +58,7 @@ function getPById(){
         smText.value = public_pp.value[this.inputNumber-1].description
         smID.value = public_pp.value[this.inputNumber-1]._id
 }}
+// Update policy using the updated values above
 function updatePolicy(){
     console.log(smID.value)
     console.log(smText.value)

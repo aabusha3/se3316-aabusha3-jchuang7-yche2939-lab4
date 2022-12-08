@@ -4,6 +4,7 @@
     <script>
     import CreateDMCA from '@/components/CreateDMCA.vue';
       export default {
+        // Attach the components
         name: 'createdmcaview',
         components: {
             CreateDMCA
