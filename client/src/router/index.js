@@ -1,5 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import Login from '../components/Login.vue'
+import Create from '../components/Create.vue'
+import Confirm from '../components/Confirm.vue'
+import Confirmed from '../components/Confirmed.vue'
+import UpdatePass from '../components/UpdatePass.vue'
+import ChangeAccess from '../components/ChangeAccess.vue'
 
 const routes = [
   {
@@ -34,6 +40,36 @@ const routes = [
     path: '/dmca',
     name: 'dmca',
     component: () => import(/* webpackChunkName: "about" */ '../views/DMCAView.vue')
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
+  },
+  {
+    path: '/create',
+    name: 'create',
+    component: Create
+  },
+  {
+    path: '/confirm',
+    name: 'confirm',
+    component: Confirm
+  },
+  {
+    path: '/confirmed',
+    name: 'confirmed',
+    component: Confirmed
+  },
+  {
+    path: '/password',
+    name: 'password',
+    component: UpdatePass
+  },
+  {
+    path: '/changeAccess',
+    name: 'changeAccess',
+    component: ChangeAccess
   }
 ]
 
