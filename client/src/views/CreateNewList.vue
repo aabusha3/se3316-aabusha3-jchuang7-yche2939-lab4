@@ -80,7 +80,7 @@ function newEntry(event){
     <form  @submit="newEntry">
         Name: <input v-model="Name" :disabled="disabled" type="text" placeholder="Name It *required"><br><br>
         Description: <input v-model="Desc" :disabled="disabled" type="text" placeholder="Describe It *optional"><br><br>
-        Tracks: <input v-model="Tracks" :disabled="disabled" type="text" placeholder="What Tracks Ids To Add e.g. '2,3,5' *required"><br><br>
+        Tracks: <input v-model="Tracks" :disabled="disabled" style="width:270px" type="text" placeholder="What Tracks Ids To Add e.g. '2,3,5' *required"><br><br>
         <button :disabled="disabled" type="submit" value="Submit" >Sumbit</button>       
     </form>
     <span v-if="msg">{{ msg }}</span>

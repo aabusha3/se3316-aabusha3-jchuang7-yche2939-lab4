@@ -15,11 +15,13 @@ function updateDone(id, newListInfo){
 
 //deletes a list from db
 async function deleteList(id, name){
-  const durl = `${url}/deleteList/${store.username}/${name}`;
-  const res = await fetch(durl);
-  const data = await res.json();
-  msg.value = data;
-  this.result.splice(id, 1);
+  if(confirm('Are You Sure You Want To Delete This List')){
+    const durl = `${url}/deleteList/${store.username}/${name}`;
+    const res = await fetch(durl);
+    const data = await res.json();
+    msg.value = data;
+    this.result.splice(id, 1);
+  }
 }
 
 //converts array to string
