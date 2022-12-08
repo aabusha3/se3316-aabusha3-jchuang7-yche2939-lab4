@@ -1,32 +1,3 @@
-// var stringSimilarity = require("string-similarity");
-// var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
-// var matches = stringSimilarity.findBestMatch("healed", [
-//   "edward",
-//   "sealed",
-//   "theatre",
-// ]);
-
-// var JwtStrategy = require('passport-jwt').Strategy,
-//     ExtractJwt = require('passport-jwt').ExtractJwt;
-// var opts = {}
-// opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-// opts.secretOrKey = 'secret';
-// opts.issuer = 'accounts.examplesoft.com';
-// opts.audience = 'yoursite.net';
-// passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-//     User.findOne({id: jwt_payload.sub}, function(err, user) {
-//         if (err) {
-//             return done(err, false);
-//         }
-//         if (user) {
-//             return done(null, user);
-//         } else {
-//             return done(null, false);
-//             // or you could create a new account
-//         }
-//     });
-// }));
-
 // Require modules 
 const express = require('express');
 const app = express();
@@ -45,7 +16,8 @@ const genresRoute = express.Router(),
       albumsRoute = express.Router(),
       tracksRoute = express.Router(),
       listsRoute = express.Router(),
-      policyRoute = express.Router();
+      policyRoute = express.Router(),
+      userRouter = express.Router();
 
 app.use(express.json());
 app.use(cors());
@@ -56,6 +28,7 @@ app.use('/api/albums', albumsRoute);
 app.use('/api/tracks', tracksRoute);
 app.use('/api/lists', listsRoute);
 app.use('/api/policies', policyRoute);
+app.use('/api/user', userRouter);
 
 genresRoute.use(express.json());
 artistsRoute.use(express.json());
@@ -552,7 +525,7 @@ listsRoute.route('/list')
             }
         });
     });
-////////////////////////
+////////////////////////chen
 var ObjectId = require('mongodb').ObjectId; 
 
 policyRoute.route('/pp')
@@ -713,6 +686,167 @@ policyRoute.route('/dmca/:_id')
     deleteOneObj(myquery, "dmca")
     res.send(myquery)
 })
+////////////////////////chen
 
 
 
+////////////////////////ahmad
+let lastUserName = 'ahmad';
+userRouter.route('/getPrivatePlaylists')
+    .get((req, res) => {
+        database.collection('private_playlist').find({creator_username: lastUserName}).toArray(function(err, result) {
+            if (err) throw err;
+            if(result.length > 20) result.length = 20;
+            return res.send(result)
+          });
+
+})
+userRouter.route('/trackInfo/:tracks')
+    .get((req, res) => {
+        const Tracks = strToArr(req.params.tracks)
+        fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
+        .on('error', (error) => {return res.status(400).send(error.message)})
+        .on('data', (data) => {if(Tracks.find(e => e === parseInt(data.track_id))) tracksRes.push(data);})
+        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "track_title", 
+        "artist_name", "album_title", "track_duration", "track_genres"])); tracksRes.length=0;});
+    });
+
+
+userRouter.route('/updateList/:oldName/:name/:desc/:tracks/:LDM/:time')
+    .get((req, res) => {   
+        const Tracks = strToArr(req.params.tracks)
+        var quarry = {name: req.params.oldName, creator_username: lastUserName}
+        var update = { $set: {name: req.params.name, desc: req.params.desc, tracks: Tracks, dateLastModed: req.params.LDM, duration: req.params.time}}
+        updateOneObj(quarry, update, "private_playlist")
+
+        var find = database.collection('public_playlist').find(quarry).toArray(function(err, result) {
+            if (err) throw err;
+            if(result.length > 0)
+                updateOneObj(quarry, update, "public_playlist");
+        });
+
+        res.send(JSON.stringify(`Playlist '${req.params.name}' has been updated`));
+     }) 
+
+userRouter.route('/updateVis/:name/:vis')
+    .get((req, res) => {       
+        if(req.params.vis === 'true'){//pub to pri
+            var quarry = {name: req.params.name, creator_username: lastUserName}
+            var update = { $set: {public:false}}
+            return new Promise((resolve, reject) => {
+                resolve(updateOneObj(quarry, update, "private_playlist"))
+                return new Promise((resolve, reject) => {
+                    resolve(deleteOneObj(quarry, "public_playlist"))
+                    return new Promise((resolve, reject) => {
+                        resolve(res.send(JSON.stringify(`Playlist '${req.params.name}' Has Been Made Private`)))
+                    })
+                })
+            })
+        } 
+        else{//pri to pub
+            var quarry = {name: req.params.name, creator_username: lastUserName}
+            var update = { $set: {public:true}}
+            var find = database.collection('private_playlist').find(quarry).toArray(function(err, result) {
+                if (err) throw err;
+                delete result[0]._id
+                return new Promise((resolve, reject) => {
+                    resolve(updateOneObj(quarry, update, "private_playlist"))
+                    return new Promise((resolve, reject) => {
+                        resolve(insertOneObj(result[0], "public_playlist"))
+                        return new Promise((resolve, reject) => {
+                            resolve(res.send(JSON.stringify(`Playlist '${req.params.name}' Has Been Made Public`)))
+                        })
+                    })
+                })
+            })
+        }
+    })
+
+userRouter.route('/deleteList/:name')
+    .get((req, res) => {       
+        var quarry = {name: req.params.name, creator_username: lastUserName}
+
+        database.collection('public_playlist').find(quarry).toArray(function(err, result){
+            if (err) throw err;
+            if(result.length > 0) deleteOneObj(quarry, "public_playlist");
+        })
+
+        database.collection('private_playlist').find(quarry).toArray(function(err, result){
+            if (err) throw err;
+            if(result.length > 0) deleteOneObj(quarry, "private_playlist");
+
+        })
+
+        res.send(JSON.stringify(`Playlist '${req.params.name}' Has Been Deleted`))
+})
+
+userRouter.route('/uniqueName/:name')
+    .get((req, res) => {
+        database.collection('private_playlist').find({creator_username: lastUserName}).toArray(function(err, result) {
+            if (err) throw err;
+            if(result.find(e => e.name.toLowerCase() === req.params.name.toLowerCase()))
+                return res.send(true);
+            else return res.send(false);
+          });
+
+})
+
+userRouter.route('/newList/:name/:desc/:tracks/:time')
+    .get((req, res) => {
+        const Tracks = strToArr(req.params.tracks)
+        var obj = {name: req.params.name, desc:req.params.desc, imgURL:"require('../assets/music-cover.png')", 
+            tracks:Tracks, public:false, creator_username: lastUserName, dateLastModed: new Date().toString(), duration: req.params.time}
+        insertOneObj(obj, "private_playlist")
+        res.send(obj)
+})
+
+
+function timeToInt(duration){
+    var textTime = duration.split(':');
+    var minToSec = parseInt(textTime[0])*60;
+    var totalSec = parseInt(textTime[1]) + minToSec;
+    return totalSec
+}
+function intToTime(secTime){
+    var min = parseInt(secTime/60)
+    var sec = ''+parseInt(secTime%60)
+    sec.length === 1? sec='0'+parseInt(secTime%60) : sec=parseInt(secTime%60)
+    return '' + min + ':' + sec;
+}
+userRouter.route('/find/:tracks')
+.get((req, res) => {
+    const Tracks = strToArr(req.params.tracks);
+    let totalTrackTime = 0
+    let totalTrackTimeFormatted = ''
+    fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
+    .on('error', (error) => res.status(400).send(error.message))
+    .on('data', (data) => {
+        currentData = parseInt(data.track_id);
+        if(Tracks.find(e => e===currentData)){
+            totalTrackTime += timeToInt(data.track_duration)
+            Tracks.splice(Tracks.findIndex(e => e===currentData),1);
+        }
+    })
+    .on('end', () => { 
+            totalTrackTimeFormatted = intToTime(totalTrackTime)
+            res.send({found:Tracks.length > 0? false : true, totalTime:totalTrackTimeFormatted})
+            totalTrackTime = 0
+            totalTrackTimeFormatted = ''
+    });
+});
+
+userRouter.route('/getPublicPlaylists')
+    .get((req, res) => {
+        database.collection('public_playlist').find().sort({dateLastModed: -1}).toArray(function(err, result) {
+            if (err) throw err;
+            if(result.length > 10) result.length = 10;
+            return res.send(result)
+          });
+
+})
+
+function strToArr(str){
+    return str.split(',')
+        .filter(e => typeof parseInt(e) === 'number'? parseInt(e):null)
+        .map(x => parseInt(x));
+}
