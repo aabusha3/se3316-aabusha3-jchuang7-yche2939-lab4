@@ -134,6 +134,147 @@ app.delete('/api/playlists', (req, res) => {
     res.send(myquery)
 })
 
+app.post('/api/admin', (req, res) => {
+    var test = req.body
+    return new Promise((resolve, reject) => {
+        resolve(insertOneObj(test, "admin"))
+        return new Promise((resolve, reject) => {
+            resolve(deleteOneObj(test, "user"))
+            return new Promise((resolve, reject) => {
+                resolve(res.send(test))
+            })
+        })
+    })
+})
+
+
+app.delete('/api/admin', (req, res) => {
+    var test = req.body
+    deleteOneObj(test, 'user')
+    res.send(test)
+})
+
+app.delete('/api/playlists', (req, res) => {
+    var myquery = {name: "jay"}
+    deleteOneObj(myquery, 'public_playlist')
+    res.send(myquery)
+})
+
+app.get('/api/playlists', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("public_playlist").find({}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.get('/api/user', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("user").find({}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.get('/api/admin', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("admin").find({}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.put('/api/userValid/:username', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        var newValues = {$set: {validated: req.body.validated}}
+        dbo.collection("user").updateOne({username: req.params.username.toLowerCase()}, newValues,(err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.put('/api/updatePassword/:username', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        var newValues = {$set: {password: req.body.password}}
+        dbo.collection("user").updateOne({username: req.params.username.toLowerCase()}, newValues,(err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.put('/api/deactivate/:username', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        var newValues = {$set: {deactivated: req.body.deactivated}}
+        dbo.collection("user").updateOne({username: req.params.username.toLowerCase()}, newValues,(err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.get('/api/login/:username', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("user").find({username: req.params.username.toLowerCase()}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
+app.get('/api/email/:email', (req, res) => {
+    //connect to database
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("user").find({email: req.params.email.toLowerCase()}).toArray((err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
 //////////////////  lab 3
 const genresRes = [],
       artistsRes = [],
