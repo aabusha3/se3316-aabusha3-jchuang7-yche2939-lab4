@@ -691,10 +691,9 @@ policyRoute.route('/dmca/:_id')
 
 
 ////////////////////////ahmad
-let lastUserName = 'ahmad';
-userRouter.route('/getPrivatePlaylists')
+userRouter.route('/getPrivatePlaylists/:user')
     .get((req, res) => {
-        database.collection('private_playlist').find({creator_username: lastUserName}).toArray(function(err, result) {
+        database.collection('private_playlist').find({creator_username: req.params.user.toLowerCase()}).toArray(function(err, result) {
             if (err) throw err;
             if(result.length > 20) result.length = 20;
             return res.send(result)
@@ -712,10 +711,10 @@ userRouter.route('/trackInfo/:tracks')
     });
 
 
-userRouter.route('/updateList/:oldName/:name/:desc/:tracks/:LDM/:time')
+userRouter.route('/updateList/:user/:oldName/:name/:desc/:tracks/:LDM/:time')
     .get((req, res) => {   
         const Tracks = strToArr(req.params.tracks)
-        var quarry = {name: req.params.oldName, creator_username: lastUserName}
+        var quarry = {name: req.params.oldName, creator_username: req.params.user.toLowerCase()}
         var update = { $set: {name: req.params.name, desc: req.params.desc, tracks: Tracks, dateLastModed: req.params.LDM, duration: req.params.time}}
         updateOneObj(quarry, update, "private_playlist")
 
@@ -728,10 +727,10 @@ userRouter.route('/updateList/:oldName/:name/:desc/:tracks/:LDM/:time')
         res.send(JSON.stringify(`Playlist '${req.params.name}' has been updated`));
      }) 
 
-userRouter.route('/updateVis/:name/:vis')
+userRouter.route('/updateVis/:user/:name/:vis')
     .get((req, res) => {       
         if(req.params.vis === 'true'){//pub to pri
-            var quarry = {name: req.params.name, creator_username: lastUserName}
+            var quarry = {name: req.params.name, creator_username: req.params.user.toLowerCase()}
             var update = { $set: {public:false}}
             return new Promise((resolve, reject) => {
                 resolve(updateOneObj(quarry, update, "private_playlist"))
@@ -744,7 +743,7 @@ userRouter.route('/updateVis/:name/:vis')
             })
         } 
         else{//pri to pub
-            var quarry = {name: req.params.name, creator_username: lastUserName}
+            var quarry = {name: req.params.name, creator_username: req.params.user.toLowerCase()}
             var update = { $set: {public:true}}
             var find = database.collection('private_playlist').find(quarry).toArray(function(err, result) {
                 if (err) throw err;
@@ -762,9 +761,9 @@ userRouter.route('/updateVis/:name/:vis')
         }
     })
 
-userRouter.route('/deleteList/:name')
+userRouter.route('/deleteList/:user/:name')
     .get((req, res) => {       
-        var quarry = {name: req.params.name, creator_username: lastUserName}
+        var quarry = {name: req.params.name, creator_username: req.params.user.toLowerCase()}
 
         database.collection('public_playlist').find(quarry).toArray(function(err, result){
             if (err) throw err;
@@ -780,9 +779,9 @@ userRouter.route('/deleteList/:name')
         res.send(JSON.stringify(`Playlist '${req.params.name}' Has Been Deleted`))
 })
 
-userRouter.route('/uniqueName/:name')
+userRouter.route('/uniqueName/:user/:name')
     .get((req, res) => {
-        database.collection('private_playlist').find({creator_username: lastUserName}).toArray(function(err, result) {
+        database.collection('private_playlist').find({creator_username: req.params.user.toLowerCase()}).toArray(function(err, result) {
             if (err) throw err;
             if(result.find(e => e.name.toLowerCase() === req.params.name.toLowerCase()))
                 return res.send(true);
@@ -791,11 +790,11 @@ userRouter.route('/uniqueName/:name')
 
 })
 
-userRouter.route('/newList/:name/:desc/:tracks/:time')
+userRouter.route('/newList/:user/:name/:desc/:tracks/:time')
     .get((req, res) => {
         const Tracks = strToArr(req.params.tracks)
         var obj = {name: req.params.name, desc:req.params.desc, imgURL:"require('../assets/music-cover.png')", 
-            tracks:Tracks, public:false, creator_username: lastUserName, dateLastModed: new Date().toString(), duration: req.params.time}
+            tracks:Tracks, public:false, creator_username: req.params.user.toLowerCase(), dateLastModed: new Date().toString(), duration: req.params.time}
         insertOneObj(obj, "private_playlist")
         res.send(obj)
 })

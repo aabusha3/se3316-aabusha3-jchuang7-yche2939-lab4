@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { store } from './../store/index.js'
 import update from './UpdateList.vue'
 
 
@@ -11,7 +12,7 @@ function updateDone(id, newListInfo){
 }
 
 async function deleteList(id, name){
-  const url = `http://localhost:3000/api/user/deleteList/${name}`;
+  const url = `http://localhost:3000/api/user/deleteList/${store.username}/${name}`;
   const res = await fetch(url);
   const data = await res.json();
   msg.value = data;
@@ -39,7 +40,7 @@ async function viewTracks(id){
 let saveRes = [];
 const result = ref([]);
 async function getPlaylists() {
-  const url = 'http://localhost:3000/api/user/getPrivatePlaylists';
+  const url = `http://localhost:3000/api/user/getPrivatePlaylists/${store.username}`;
   const res = await fetch(url);
   const data = await res.json();
   result.value = data;
@@ -49,7 +50,7 @@ async function getPlaylists() {
 const msg = ref('');
 async function updateVis(id, name, vis){
   this.result[id].public = !this.result[id].public;
-  const url = `http://localhost:3000/api/user/updateVis/${name}/${vis}`;
+  const url = `http://localhost:3000/api/user/updateVis/${store.username}/${name}/${vis}`;
   const res = await fetch(url);
   const data = await res.json();
   msg.value = data;

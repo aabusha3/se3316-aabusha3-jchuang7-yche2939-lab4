@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { store } from './../store/index.js'
 const props = defineProps({
   name: String,
   desc: String,
@@ -46,7 +47,7 @@ function updateEntry(event){
 
   const getUniqueName = async function() {
     if(Name.value !== props.name){
-      const gurl = `http://localhost:3000/api/user/uniqueName/${Name.value}`;
+      const gurl = `http://localhost:3000/api/user/uniqueName/${store.username}/${Name.value}`;
       const gres = await fetch(gurl);
       const gdata = await gres.json();
       gresult.value = gdata;
@@ -69,7 +70,7 @@ function updateEntry(event){
       if(Desc.value.length === 0) Desc.value = ' ';
       const updatetNew = async function(){
         const LDM = new Date().toString();
-        const uurl = `http://localhost:3000/api/user/updateList/${props.name}/${Name.value}/${Desc.value}/${Tracks.value}/${LDM}/${fdata.totalTime}`;
+        const uurl = `http://localhost:3000/api/user/updateList/${store.username}/${props.name}/${Name.value}/${Desc.value}/${Tracks.value}/${LDM}/${fdata.totalTime}`;
         const ures = await fetch(uurl);
         const udata = await ures.json();
         msg.value = '';

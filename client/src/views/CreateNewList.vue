@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { store } from './../store/index.js'
 
 const Name = ref('')
 const Desc = ref('')
@@ -27,7 +28,7 @@ function newEntry(event){
 
 
   const getUniqueName = async function() {
-    const gurl = `http://localhost:3000/api/user/uniqueName/${Name.value}`;
+    const gurl = `http://localhost:3000/api/user/uniqueName/${store.username}/${Name.value}`;
     const gres = await fetch(gurl);
     const gdata = await gres.json();
     gresult.value = gdata;
@@ -49,7 +50,7 @@ function newEntry(event){
   
       if(Desc.value.length === 0) Desc.value = ' ';
       const insertNew = async function(){
-        const iurl = `http://localhost:3000/api/user/newList/${Name.value}/${Desc.value}/${Tracks.value}/${fdata.totalTime}`;
+        const iurl = `http://localhost:3000/api/user/newList/${store.username}/${Name.value}/${Desc.value}/${Tracks.value}/${fdata.totalTime}`;
         const ires = await fetch(iurl);
         const idata = await ires.json();
         msg.value = '';
