@@ -1,3 +1,7 @@
+<script setup>
+import { store } from './../store/index.js'
+</script>
+
 <template>
   <div class="about">
     <h1>About this web application</h1>
@@ -5,25 +9,31 @@
       track lists from the our track records.
     </h3>
     <h3>
-      Click here to register an account: <router-link to="/">Home</router-link>
+      Click here to register an account: <router-link to="/create">Create New Account</router-link>
     </h3>
     <h3>
-      Click here to log in: <router-link to="/">Home</router-link>
+      Click here to log in: <router-link to="/login">Log In</router-link>
     </h3>
     <h3>
       Click here to view our privacy policy: <router-link to="/privacypolicy">Private Policy</router-link>
       <br>
-      Create/Delete privacy policy components: <router-link to="/createpp">Create/Delete PP components</router-link>
+      <div v-if="store.admin">
+        Create/Delete privacy policy components: <router-link to="/createpp">Create/Delete PP components</router-link>
+      </div>
     </h3>
     <h3>
       Click here to view our acceptable use policy: <router-link to="/aup">Acceptable Use Policy</router-link>
       <br>
-      Create/Delete acceptable use policy components: <router-link to="/createaup">Create/Delete AUP components</router-link>
+      <div v-if="store.admin">
+        Create/Delete acceptable use policy components: <router-link to="/createaup">Create/Delete AUP components</router-link>
+      </div>
     </h3>
     <h3>
       Click here to view DMCA notice & takedown policy: <router-link to="/dmca">DMCA Notice & Takedown Policy</router-link> 
       <br>
-      Create/Delete DMCA notice & takedown policy components: <router-link to="/createdmca">Create/Delete DMCA components</router-link>
+      <div v-if="store.admin">
+        Create/Delete DMCA notice & takedown policy components: <router-link to="/createdmca">Create/Delete DMCA components</router-link>
+      </div>
     </h3>
   </div>
 </template>
