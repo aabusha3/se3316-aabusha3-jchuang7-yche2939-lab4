@@ -1,5 +1,6 @@
 
 <template>
+<!-- html -->
   <div class="create">
       <h1>Validate Email</h1>
       <button class = 'link' @click="nextPage"><u>Click to verify email</u></button>
@@ -12,6 +13,7 @@ import { store } from './../store/index.js'
 
 const URL = (`http://localhost:3000/api/userValid/${store.username}`)
 
+// moves to next page and validates account
 async function nextPage () {
     axios.put(URL, {
                 validated: true
@@ -21,7 +23,9 @@ async function nextPage () {
 
 </script>
 
+
 <style>
+/* style */
     button.link {
         background: none;
         border: none;

@@ -1,5 +1,6 @@
 
 <template>
+<!-- html -->
   <div class="update">
       <h1>Update Password</h1>
       <input type="password" name="password" v-model="password" placeholder="password"><br>
@@ -12,9 +13,11 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { store } from './../store/index.js'
 
+//url
 const URL = (`http://localhost:3000/api/updatePassword/${store.username}`)
 const password = ref(null)
 
+//goes back to page and updates password
 async function next () {
     axios.put(URL, {
                 password: password.value
