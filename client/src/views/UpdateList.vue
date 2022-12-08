@@ -8,7 +8,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['done'])
 
-const url = 'http://localhost:3000/api/user/'
+const url = `${store.url}/user`
 
 //runs on page load
 onMounted(() => {

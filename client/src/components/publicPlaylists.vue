@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from "vue";
+import { store } from './../store/index.js'
+
 // import update from './UpdateList.vue'
 
-const url = 'http://localhost:3000/api/user/'
+const url = `${store.url}/user`
 
 // function updateDone(id, newListInfo){
 //   this.result[id].name = newListInfo.Name;
