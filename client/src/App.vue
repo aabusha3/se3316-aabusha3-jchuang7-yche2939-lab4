@@ -3,8 +3,10 @@ import { store } from './store/index.js'
 </script>
 
 <template>
+<!-- html -->
   <div v-if="store.public && !store.admin">
-    <nav>
+    <nav> 
+      <!-- redirects to public links -->
       <router-link to="/">Home</router-link> | 
       <router-link to="/about">About</router-link> | 
       <router-link to="/login">Login</router-link> | 
@@ -13,6 +15,7 @@ import { store } from './store/index.js'
     <router-view/>
   </div>
 
+<!-- redirects to logged in links and public -->
   <div v-else-if="!store.public && !store.admin">
     <nav>
       <router-link to="/">Home</router-link> |
@@ -24,6 +27,7 @@ import { store } from './store/index.js'
     <router-view/>
   </div>
 
+<!-- redirects to admin pages and everything else -->
   <div v-else>
     <nav>
       <router-link to="/">Home</router-link> | 
