@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { store } from './../store/index.js'
 import update from './UpdateList.vue'
 
@@ -55,7 +55,8 @@ async function updateVis(id, name, vis){
   const data = await res.json();
   msg.value = data;
 }
-getPlaylists();
+
+onMounted(() => {getPlaylists()})
 </script>
 
 <template>
