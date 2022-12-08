@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { store } from './../store/index.js'
 
-const url = 'http://localhost:3000/api/user'
+const url = `${store.url}/user`
 
 const Name = ref('')
 const Desc = ref('')

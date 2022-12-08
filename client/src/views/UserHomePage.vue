@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import { store } from './../store/index.js'
 import update from './UpdateList.vue'
 
-const url = 'http://localhost:3000/api/user'
+const url = `${store.url}/user`
 
 //updates list items + db upon update button press
 function updateDone(id, newListInfo){
@@ -15,8 +15,8 @@ function updateDone(id, newListInfo){
 
 //deletes a list from db
 async function deleteList(id, name){
-  const url = `${url}/deleteList/${store.username}/${name}`;
-  const res = await fetch(url);
+  const durl = `${url}/deleteList/${store.username}/${name}`;
+  const res = await fetch(durl);
   const data = await res.json();
   msg.value = data;
   this.result.splice(id, 1);
@@ -35,8 +35,8 @@ async function viewTracks(id){
   tmsg.value = 'Please Wait As We Retrieve Tracks Info'
   showTrack.value = true;
   const tracksStr = arrToStr(saveRes[id].tracks);
-  const url = `${url}/trackInfo/${tracksStr}`;
-  const res = await fetch(url);
+  const vurl = `${url}/trackInfo/${tracksStr}`;
+  const res = await fetch(vurl);
   const data = await res.json();
   tracks.value = data;
   tmsg.value = 'Tracks Info Retrieved'
@@ -46,8 +46,8 @@ async function viewTracks(id){
 let saveRes = [];
 const result = ref([]);
 async function getPlaylists() {
-  const url = `${url}/getPrivatePlaylists/${store.username}`;
-  const res = await fetch(url);
+  const gurl = `${url}/getPrivatePlaylists/${store.username}`;
+  const res = await fetch(gurl);
   const data = await res.json();
   result.value = data;
   saveRes = data;
