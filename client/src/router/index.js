@@ -7,9 +7,10 @@ import Confirmed from '../components/Confirmed.vue'
 import UpdatePass from '../components/UpdatePass.vue'
 import ChangeAccess from '../components/ChangeAccess.vue'
 
+//routes name explains route
 const routes = [
   {
-    path: '/',
+    path: '/', //main
     name: 'home',
     component: HomeView
   },
@@ -23,12 +24,12 @@ const routes = [
   },
   {
     path: '/search',
-    name: 'search',
+    name: 'search', //search
     component: () => import(/* webpackChunkName: "about" */ '../views/SearchTrackView.vue')
   },
   {
     path: '/privacypolicy',
-    name: 'privacypolicy',
+    name: 'privacypolicy', //privacy
     component: () => import(/* webpackChunkName: "about" */ '../views/PrivacyPolicyView.vue')
   },
   {

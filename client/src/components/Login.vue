@@ -1,5 +1,6 @@
 
 <template>
+<!-- html -->
   <div class="login">
       <h1>Login</h1>
       <input for="email" name="email" v-model="email" placeholder="email"><br>
@@ -17,6 +18,7 @@
     const adminResult = ref([])
     const URL = "http://localhost:3000/api/"
 
+    //login function
     async function login () {
         await fetch(URL + 'user')
         .then(res => {
@@ -27,7 +29,7 @@
         })
         .then(data => result.value = data)
         .catch(err => console.log(err))
-
+        //calls user and admin database to get values to check
         await fetch(URL + 'admin')
         .then(res1 => {
             if(!res1.ok) {
@@ -38,6 +40,7 @@
         .then(data1 => adminResult.value = data1)
         .catch(err => console.log(err))
 
+        //if not empty, it will check for input sanitization and then check if theyre equal to either admin or user and log in if able to
         if(email.value != '' && password.value != '') {
             if(/^[^@]+@\w+(\.\w+)+\w$/.test(this.email)) {
                 for(var key in adminResult.value) {
@@ -54,7 +57,7 @@
                     }
                 }
 
-
+                //checks if account is disabled or if it needs activation and if it does it will lead to account activation page.
                 for(var key in result.value) {
                     if(result.value[key].email.toLowerCase() == this.email.toLowerCase()) {
                         if(!result.value[key].deactivated) {
@@ -76,12 +79,12 @@
                                 store.public = false
                                 window.location.href = "http://localhost:8080/#/"
                                 break;
-                            } else {
+                            } else { //conditions to satisfy incorrect inputs
                                 alert("incorrect password")
                                 break;
                             }
                         } else {
-                            alert("Your account is deactivated. Contact ---")
+                            alert("Your account is deactivated. Contact jchuang7@uwo.ca")
                             break;
                         }
                     }

@@ -97,18 +97,21 @@ function updateOneObj(myquery, newvalues, table){
 
 
 ////////////////////////justin
+//request to insert into db
 app.post('/api/playlists', (req, res) => {
     var test = {name: "jay", tracks: "2,3"}
     insertOneObj(test, "public_playlist")
     res.send(test)
 })
 
+//request to delete from playlist db
 app.delete('/api/playlists', (req, res) => {
     var myquery = {name: "jay"}
     deleteOneObj(myquery, 'public_playlist')
     res.send(myquery)
 })
 
+//request to add to admin db and delete from user db
 app.post('/api/admin', (req, res) => {
     var test = req.body
     return new Promise((resolve, reject) => {
@@ -122,19 +125,14 @@ app.post('/api/admin', (req, res) => {
     })
 })
 
-
+//request to delete from admin db only
 app.delete('/api/admin', (req, res) => {
     var test = req.body
     deleteOneObj(test, 'user')
     res.send(test)
 })
 
-app.delete('/api/playlists', (req, res) => {
-    var myquery = {name: "jay"}
-    deleteOneObj(myquery, 'public_playlist')
-    res.send(myquery)
-})
-
+//request to return public playlists
 app.get('/api/playlists', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -149,6 +147,7 @@ app.get('/api/playlists', (req, res) => {
     })
 })
 
+//request to return all users
 app.get('/api/user', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -163,6 +162,7 @@ app.get('/api/user', (req, res) => {
     })
 })
 
+//request to return all admins
 app.get('/api/admin', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -177,6 +177,8 @@ app.get('/api/admin', (req, res) => {
     })
 })
 
+
+//request to check if user is validated
 app.put('/api/userValid/:username', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -191,6 +193,8 @@ app.put('/api/userValid/:username', (req, res) => {
         })
     })
 })
+
+//request to update password
 
 app.put('/api/updatePassword/:username', (req, res) => {
     //connect to database
@@ -207,6 +211,7 @@ app.put('/api/updatePassword/:username', (req, res) => {
     })
 })
 
+//request to update deactivate element on account
 app.put('/api/deactivate/:username', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -222,6 +227,7 @@ app.put('/api/deactivate/:username', (req, res) => {
     })
 })
 
+//request to retrieve data based on username to check
 app.get('/api/login/:username', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -236,6 +242,7 @@ app.get('/api/login/:username', (req, res) => {
     })
 })
 
+//request to check for email for duplicates
 app.get('/api/email/:email', (req, res) => {
     //connect to database
     MongoClient.connect(process.env.DB_URL, function(err, db){
@@ -251,6 +258,7 @@ app.get('/api/email/:email', (req, res) => {
 })
 
 
+//request for login that returns JSON web token
 app.post('/api/login', (req, res) => {
     MongoClient.connect(process.env.DB_URL, function(err, db){
         if(err) throw err

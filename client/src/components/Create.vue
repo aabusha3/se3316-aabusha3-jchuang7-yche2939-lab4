@@ -1,5 +1,6 @@
 
 <template>
+<!-- html -->
   <div class="create">
       <h1>Create Account</h1>
       <input type="username" name='username' v-model='username' placeholder='username'><br>
@@ -25,9 +26,12 @@
     //         password: password.value
     //     })
 
+//function to create account
     async function create() {
       if(this.email != '' && this.password != '' && this.username != '') {
+        //input sanitization
         if(/^[^@]+@\w+(\.\w+)+\w$/.test(this.email)) {
+          //fetching data
           await fetch(`http://localhost:3000/api/email/${this.email}`)
           .then(res => {
             if(!res.ok) {
@@ -40,6 +44,7 @@
 
           console.log(result.value)
 
+        //compares data if theres its enough characters and the email does not exist already
           if(username.value.length > 6 || password.value.length > 6) {
             if(result.value == '') {
               axios.post('http://localhost:3000/api/user', {
@@ -51,7 +56,7 @@
                   original: false
                 })
                 toLogin()
-            } else {
+            } else { //conditions for the various misinputs
               alert("This email already exists")
             }
           } else {
