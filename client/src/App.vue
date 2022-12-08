@@ -1,7 +1,5 @@
 <script setup>
-import { ref } from "vue";
 import { store } from './store/index.js'
-
 </script>
 
 <template>
@@ -33,7 +31,7 @@ import { store } from './store/index.js'
       <router-link to="/login" @click="store.public = true; store.username = ''; store.admin = false">Log Out</router-link> | 
       <router-link to="/password">Change Password</router-link> | 
       <router-link to="/changeAccess">Change Access</router-link> | 
-      <router-link to="/userHomePage">Private Playlists</router-link>
+      <router-link to="/userHomePage">Private Playlists</router-link> | 
       {{store.username}}
       <h1>Admin Rights</h1>
     </nav>
