@@ -428,6 +428,11 @@ policyRoute.route('/pp')
         })
     })
     })
+    .post((req, res) => {
+        var newObject = {name: req.body.name, description: req.body.description}
+        insertOneObj(newObject, "privacy_policy")
+        res.send(newObject)
+    })
 
 policyRoute.route('/pp/:_id')
 .get((req, res) => {
@@ -454,6 +459,13 @@ policyRoute.route('/pp/:_id')
         updateOneObj(myquery, newValues, "privacy_policy")
         res.send(newValues)
 })
+.delete((req, res) => {
+    var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        var myquery = {_id: o_id}
+    deleteOneObj(myquery, "privacy_policy")
+    res.send(myquery)
+})
 
 policyRoute.route('/aup')
     .get((req, res) => {
@@ -468,6 +480,11 @@ policyRoute.route('/aup')
             db.close()
         })
     })
+    })
+    .post((req, res) => {
+        var newObject = {name: req.body.name, description: req.body.description}
+        insertOneObj(newObject, "aup")
+        res.send(newObject)
     })
 
 policyRoute.route('/aup/:_id')
@@ -495,6 +512,13 @@ policyRoute.route('/aup/:_id')
         updateOneObj(myquery, newValues, "aup")
         res.send(newValues)
 })
+.delete((req, res) => {
+    var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        var myquery = {_id: o_id}
+    deleteOneObj(myquery, "aup")
+    res.send(myquery)
+})
 
 policyRoute.route('/dmca')
     .get((req, res) => {
@@ -509,6 +533,11 @@ policyRoute.route('/dmca')
             db.close()
         })
     })
+    })
+    .post((req, res) => {
+        var newObject = {name: req.body.name, description: req.body.description}
+        insertOneObj(newObject, "dmca")
+        res.send(newObject)
     })
 
 policyRoute.route('/dmca/:_id')
@@ -536,5 +565,13 @@ policyRoute.route('/dmca/:_id')
         updateOneObj(myquery, newValues, "dmca")
         res.send(newValues)
 })
+.delete((req, res) => {
+    var id = req.params._id;       
+        var o_id = new ObjectId(id);
+        var myquery = {_id: o_id}
+    deleteOneObj(myquery, "dmca")
+    res.send(myquery)
+})
+
 
 

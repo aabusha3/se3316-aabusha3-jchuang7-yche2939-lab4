@@ -35,6 +35,24 @@ const routes = [
     name: 'dmca',
     component: () => import(/* webpackChunkName: "about" */ '../views/DMCAView.vue')
   }
+  ,
+  {
+    path: '/createdmca',
+    name: 'createdmca',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CreateDMCAView.vue')
+  }
+  ,
+  {
+    path: '/createaup',
+    name: 'createaup',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CreateAUPView.vue')
+  }
+  ,
+  {
+    path: '/createpp',
+    name: 'createpp',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CreatePPView.vue')
+  }
 ]
 
 const router = createRouter({

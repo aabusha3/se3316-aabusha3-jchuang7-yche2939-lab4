@@ -5,6 +5,7 @@
       </h2>
       <p>{{list.description}}</p>
    </div>
+   <hr>
    <div>
        Which section do you want to edit? (enter 1-9) <input v-model="inputNumber" type="number">
        <button @click="getPById($event)">Search</button>
