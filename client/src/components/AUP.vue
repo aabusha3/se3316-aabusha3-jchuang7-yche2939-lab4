@@ -6,7 +6,7 @@
        <p>{{list.description}}</p>
     </div>
     <hr>
-    <div>
+    <div v-if="store.admin">
        Which section do you want to edit? (enter 1-10) <input v-model="inputNumber" type="number">
        <button @click="getPById($event)">Search</button>
        <br>
@@ -17,6 +17,7 @@
  </template>
  <script setup>
  import { ref, onMounted} from 'vue';
+ import { store } from './../store/index.js'
  const URL = "http://localhost:3000/api/"
  const public_aup = ref(null)
  async function getPP(){
