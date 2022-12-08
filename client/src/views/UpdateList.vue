@@ -8,7 +8,9 @@ const props = defineProps({
 })
 const emit = defineEmits(['done'])
 
+const url = 'http://localhost:3000/api/user/'
 
+//runs on page load
 onMounted(() => {
   Name.value = props.name;
   Desc.value = props.desc===' '? '' : props.desc;
@@ -24,14 +26,17 @@ const uresult = ref('')
 const msg = ref('')
 const disabled = ref(false)
 
-
+//updates entries in the database
 function updateEntry(event){
   msg.value = ''; 
+
+  //turns the tracks string input into an array, sorts + checks if all are ints + removes duplicate entries  
   const Track = Tracks.value.split(',')
         .filter(e => typeof parseInt(e) === 'number'? parseInt(e):null)
         .map(x => parseInt(x)).sort((a,b) => (a-b))
         .filter((item, pos, ary) => (!pos || item != ary[pos - 1]));
 
+  //ensures the fields have changed
   if(Name.value === props.name && Track.toString() === props.tracks) 
     if(props.desc===' '? Desc.value === '' : Desc.value === props.desc) return;
 
@@ -40,14 +45,16 @@ function updateEntry(event){
   uresult.value = '';
   event.preventDefault();
 
+  //ensures the required fields are filled out
   if(Track.length === 0 || Name.value.length === 0){
     disabled.value = false;
     return msg.value = 'Please Make Sure You Fill Out The Required Fields';
   }
 
+  //checks if the entered name exists
   const getUniqueName = async function() {
     if(Name.value !== props.name){
-      const gurl = `http://localhost:3000/api/user/uniqueName/${store.username}/${Name.value}`;
+      const gurl = `${url}/uniqueName/${store.username}/${Name.value}`;
       const gres = await fetch(gurl);
       const gdata = await gres.json();
       gresult.value = gdata;
@@ -56,10 +63,12 @@ function updateEntry(event){
         return msg.value = `Name '${Name.value}' Already Exists`;
       }
     }
+
+    //checks if the entered track numbers are valid
     const findId = async function() {
       Tracks.value = Track.toString();
       msg.value = 'Please Wait As We Check If The Track Exists';
-      const furl = `http://localhost:3000/api/user/find/${Tracks.value}`;
+      const furl = `${url}/find/${Tracks.value}`;
       const fres = await fetch(furl);
       const fdata = await fres.json();
       if(!fdata.found) {
@@ -67,10 +76,11 @@ function updateEntry(event){
         return msg.value = 'Please Make Sure You Only Enter In Valid Track Ids';
       }
   
+      //updates existing entry in the databse
       if(Desc.value.length === 0) Desc.value = ' ';
       const updatetNew = async function(){
         const LDM = new Date().toString();
-        const uurl = `http://localhost:3000/api/user/updateList/${store.username}/${props.name}/${Name.value}/${Desc.value}/${Tracks.value}/${LDM}/${fdata.totalTime}`;
+        const uurl = `${url}/updateList/${store.username}/${props.name}/${Name.value}/${Desc.value}/${Tracks.value}/${LDM}/${fdata.totalTime}`;
         const ures = await fetch(uurl);
         const udata = await ures.json();
         msg.value = '';

@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { store } from './../store/index.js'
 
+const url = 'http://localhost:3000/api/user'
+
 const Name = ref('')
 const Desc = ref('')
 const Tracks = ref('')
@@ -10,25 +12,29 @@ const iresult = ref('')
 const msg = ref('')
 const disabled = ref(false)
 
+//adds a new playlist
 function newEntry(event){
   disabled.value = true;
   iresult.value = '';
   msg.value = ''; 
   event.preventDefault();
+
+  //turns the tracks string input into an array, sorts + checks if all are ints + removes duplicate entries  
   const Track = Tracks.value.split(',')
         .filter(e => typeof parseInt(e) === 'number'? parseInt(e):null)
         .map(x => parseInt(x)).sort((a,b) => (a-b))
         .filter((item, pos, ary) => (!pos || item != ary[pos - 1]));
         
 
+  //ensures the required fields are filled out
   if(Track.length === 0 || Name.value.length === 0){
     disabled.value = false;
     return msg.value = 'Please Make Sure You Fill Out The Required Fields';
   }
 
-
+  //checks if the entered name exists
   const getUniqueName = async function() {
-    const gurl = `http://localhost:3000/api/user/uniqueName/${store.username}/${Name.value}`;
+    const gurl = `${url}/uniqueName/${store.username}/${Name.value}`;
     const gres = await fetch(gurl);
     const gdata = await gres.json();
     gresult.value = gdata;
@@ -37,10 +43,11 @@ function newEntry(event){
       return msg.value = `Name '${Name.value}' Already Exists`;
     }
 
+    //checks if the entered track numbers are valid
     const findId = async function() {
       Tracks.value = Track.toString();
       msg.value = 'Please Wait As We Check If The Track Exists';
-      const furl = `http://localhost:3000/api/user/find/${Tracks.value}`;
+      const furl = `${url}/find/${Tracks.value}`;
       const fres = await fetch(furl);
       const fdata = await fres.json();
       if(!fdata.found) {
@@ -48,9 +55,10 @@ function newEntry(event){
         return msg.value = 'Please Make Sure You Only Enter In Valid Track Ids';
       }
   
+      //insert new entry in the databse
       if(Desc.value.length === 0) Desc.value = ' ';
       const insertNew = async function(){
-        const iurl = `http://localhost:3000/api/user/newList/${store.username}/${Name.value}/${Desc.value}/${Tracks.value}/${fdata.totalTime}`;
+        const iurl = `${url}/newList/${store.username}/${Name.value}/${Desc.value}/${Tracks.value}/${fdata.totalTime}`;
         const ires = await fetch(iurl);
         const idata = await ires.json();
         msg.value = '';

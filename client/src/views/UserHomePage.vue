@@ -3,7 +3,9 @@ import { ref, onMounted } from "vue";
 import { store } from './../store/index.js'
 import update from './UpdateList.vue'
 
+const url = 'http://localhost:3000/api/user'
 
+//updates list items + db upon update button press
 function updateDone(id, newListInfo){
   this.result[id].name = newListInfo.Name;
   this.result[id].desc = newListInfo.Desc;
@@ -11,18 +13,21 @@ function updateDone(id, newListInfo){
   this.result[id].dateLastModed = newListInfo.DLM;
 }
 
+//deletes a list from db
 async function deleteList(id, name){
-  const url = `http://localhost:3000/api/user/deleteList/${store.username}/${name}`;
+  const url = `${url}/deleteList/${store.username}/${name}`;
   const res = await fetch(url);
   const data = await res.json();
   msg.value = data;
   this.result.splice(id, 1);
 }
 
+//converts array to string
 function arrToStr(arr){
   return arr.toString();
 }
 
+//get all relavant info of select track ids
 const tmsg = ref('')
 const tracks = ref([]);
 const showTrack = ref(false);
@@ -30,32 +35,35 @@ async function viewTracks(id){
   tmsg.value = 'Please Wait As We Retrieve Tracks Info'
   showTrack.value = true;
   const tracksStr = arrToStr(saveRes[id].tracks);
-  const url = `http://localhost:3000/api/user/trackInfo/${tracksStr}`;
+  const url = `${url}/trackInfo/${tracksStr}`;
   const res = await fetch(url);
   const data = await res.json();
   tracks.value = data;
   tmsg.value = 'Tracks Info Retrieved'
 }
 
+//get all related playlists associated with the user
 let saveRes = [];
 const result = ref([]);
 async function getPlaylists() {
-  const url = `http://localhost:3000/api/user/getPrivatePlaylists/${store.username}`;
+  const url = `${url}/getPrivatePlaylists/${store.username}`;
   const res = await fetch(url);
   const data = await res.json();
   result.value = data;
   saveRes = data;
 };
 
+//updates the visability of the list items + db
 const msg = ref('');
 async function updateVis(id, name, vis){
   this.result[id].public = !this.result[id].public;
-  const url = `http://localhost:3000/api/user/updateVis/${store.username}/${name}/${vis}`;
+  const url = `${url}/updateVis/${store.username}/${name}/${vis}`;
   const res = await fetch(url);
   const data = await res.json();
   msg.value = data;
 }
 
+//loads on page load
 onMounted(() => {getPlaylists()})
 </script>
 

@@ -2,6 +2,7 @@
 import { ref } from "vue";
 // import update from './UpdateList.vue'
 
+const url = 'http://localhost:3000/api/user/'
 
 // function updateDone(id, newListInfo){
 //   this.result[id].name = newListInfo.Name;
@@ -37,10 +38,12 @@ function arrToStr(arr){
 // }
 
 //let saveRes = [];
+
+//get public playlist
 const result = ref([]);
 async function getPlaylists() {
-  const url = 'http://localhost:3000/api/user/getPublicPlaylists';
-  const res = await fetch(url);
+  const purl = `${url}/getPublicPlaylists`;
+  const res = await fetch(purl);
   const data = await res.json();
   result.value = data;
   //saveRes = data;
