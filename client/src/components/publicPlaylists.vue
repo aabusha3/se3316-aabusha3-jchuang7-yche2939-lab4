@@ -1,45 +1,32 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { store } from './../store/index.js'
 
-// import update from './UpdateList.vue'
+const hideListInfo = ref(Array(10).fill(false))
 
 const url = `${store.url}/user`
 
-// function updateDone(id, newListInfo){
-//   this.result[id].name = newListInfo.Name;
-//   this.result[id].desc = newListInfo.Desc;
-//   this.result[id].tracks = newListInfo.Tracks;
-//   this.result[id].dateLastModed = newListInfo.DLM;
-// }
-
-// async function deleteList(id, name){
-//   const url = `http://localhost:3000/api/user/deleteList/${name}`;
-//   const res = await fetch(url);
-//   const data = await res.json();
-//   msg.value = data;
-//   this.result.splice(id, 1);
-// }
 
 function arrToStr(arr){
   return arr.toString();
 }
 
-// const tmsg = ref('')
-// const tracks = ref([]);
-// const showTrack = ref(false);
-// async function viewTracks(id){
-//   tmsg.value = 'Please Wait As We Retrieve Tracks Info'
-//   showTrack.value = true;
-//   const tracksStr = arrToStr(saveRes[id].tracks);
-//   const url = `http://localhost:3000/api/user/trackInfo/${tracksStr}`;
-//   const res = await fetch(url);
-//   const data = await res.json();
-//   tracks.value = data;
-//   tmsg.value = 'Tracks Info Retrieved'
-// }
-
-//let saveRes = [];
+//get all relavant info of select track ids
+const tmsg = ref('')
+const tracks = ref([]);
+const showTrack = ref(false);
+async function viewTracks(id){
+  showTrack.value = !showTrack.value
+  tmsg.value = 'Tracks Info Hidden'
+  if(!showTrack.value) return;
+  tmsg.value = 'Please Wait As We Retrieve Tracks Info'
+  const tracksStr = arrToStr(this.result[id].tracks);
+  const vurl = `${url}/trackInfo/${tracksStr}`;
+  const res = await fetch(vurl);
+  const data = await res.json();
+  tracks.value = data;
+  tmsg.value = 'Tracks Info Retrieved'
+}
 
 //get public playlist
 const result = ref([]);
@@ -48,51 +35,62 @@ async function getPlaylists() {
   const res = await fetch(purl);
   const data = await res.json();
   result.value = data;
-  //saveRes = data;
 };
 
-// const msg = ref('');
-// async function updateVis(id, name, vis){
-//   this.result[id].public = !this.result[id].public;
-//   const url = `http://localhost:3000/api/user/updateVis/${name}/${vis}`;
-//   const res = await fetch(url);
-//   const data = await res.json();
-//   msg.value = data;
-// }
-getPlaylists();
+onMounted(() => {getPlaylists()})
 </script>
 
 <template>
-  
-  <!-- <br> <span>{{msg}}</span> -->
-
   <table>
     <thead>
       <tr>
         <th>Image</th>
         <th>Name</th>
         <th>Creator</th>
-        <th>Duration</th>
         <th># of Tracks</th>
+        <th>Duration</th>
         <th>Average Rating</th>
         <th>View More</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(list,index) in result" :key="index">
+      <tr v-for="(list, index) in result" :key="index">
         <td id="img"><img src='../assets/music-cover.png'></td> 
         <td>{{list.name}}</td>
         <td>{{list.creator_username}}</td>
-        <td>{{list.duration}}</td>
         <td>{{list.tracks.length}}</td>
-        <td></td>
-        <td><button>View More Info</button></td>
+        <td>{{list.duration}}</td>
+        <td>{{list.comments.length > 0? ((list.comments.map(e=>e.rating).reduce((accumulator, currentValue) => accumulator + currentValue) / list.comments.length)) : 0}} / 5</td>
+        <td>
+          <button @click="(() => {hideListInfo[index] = !hideListInfo[index]; showTrack = false; if(!hideListInfo[index])tmsg = 'Tracks Info Hidden';})">
+            {{hideListInfo[index]? 'hide':'show more'}}
+          </button>
+          <table v-if="(hideListInfo[index])">
+            <thead>
+              <th>
+                Description
+              </th>
+              <th>
+                Tracks
+              </th>
+              <th>
+                View More
+              </th>
+            </thead>
+            <tbody>
+              <td>{{list.desc}}</td>
+              <td>{{list.tracks.toString()}}</td>
+              <td>
+                <button type="button" @click="viewTracks(index)">{{showTrack? 'hide':'show tracks info'}}</button>
+              </td>
+            </tbody>
+          </table>
+        </td>
       </tr>
     </tbody>
   </table>
 
-
-  <!-- <br><br>
+  <br><br>
   <span>{{tmsg}}</span>
   <br>
   <table v-if="showTrack">
@@ -104,6 +102,7 @@ getPlaylists();
         <th>Album</th>
         <th>Duration</th>
         <th>Genres</th>
+        <th>Play On Youtube</th>
       </tr>
     </thead>
     <tbody>
@@ -114,9 +113,14 @@ getPlaylists();
         <td>{{track.album_title}}</td>
         <td>{{track.track_duration}}</td>
         <td>{{(JSON.parse(track.track_genres.replace(/'/g, '"'))[0].genre_title || 'unable to retrieve genere')}}</td>
+        <td>
+          <a v-bind:href="('https://www.youtube.com/results?search_query='+ track.track_title + ' by ' + track.artist_name + ' ' + track.album_title)" target="_blank">
+            <button>Play</button>
+          </a>
+        </td>
       </tr>
     </tbody>
-  </table> -->
+  </table>
 </template>
 
 <style>

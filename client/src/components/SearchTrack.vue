@@ -18,13 +18,13 @@
             <li>No matched result</li>
         </div>
         <div v-else>
-            <li v-for="titleRes of titleResults">
+            <li v-for="(titleRes, index) of titleResults" :key="index">
         Track Title: {{titleRes.track_title}} || 
         Artist Name: {{titleRes.artist_name}} || 
-        <button @click="(hideCompleted[titleResults.indexOf(titleRes)] = !hideCompleted[titleResults.indexOf(titleRes)])">
-        {{hideCompleted[titleResults.indexOf(titleRes)]? 'hide':"more"}}
+        <button @click="(hideCompleted[index] = !hideCompleted[index])">
+        {{hideCompleted[index]? 'hide':"more"}}
         </button>
-        <p v-if="(hideCompleted[titleResults.indexOf(titleRes)] == true)">
+        <p v-if="(hideCompleted[index])">
             Album Title: {{titleRes.album_title}} || Track Date Created: {{titleRes.track_date_created}} || Track Duration: {{titleRes.track_duration}} 
         </p>
         <a v-bind:href="('https://www.youtube.com/results?search_query='+ titleRes.album_title)" target="_blank">

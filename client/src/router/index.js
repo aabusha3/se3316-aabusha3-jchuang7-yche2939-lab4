@@ -99,6 +99,11 @@ const routes = [
     path: '/createNewList',
     name: 'createNewList',
     component: () => import( '../views/CreateNewList.vue')
+  },
+  {
+    path: '/publicPlaylists',
+    name: 'publicPlaylists',
+    component: () => import( '../views/PublicPlaylistView.vue')
   }
 ]
 
