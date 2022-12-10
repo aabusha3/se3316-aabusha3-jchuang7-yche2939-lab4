@@ -104,6 +104,11 @@ const routes = [
     path: '/publicPlaylists',
     name: 'publicPlaylists',
     component: () => import( '../views/PublicPlaylistView.vue')
+  },
+  {
+    path: '/takedownprocedure',
+    name: 'takedownprocedure',
+    component: () => import( '../views/TakedownProcedureView.vue')
   }
 ]
 

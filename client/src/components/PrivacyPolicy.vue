@@ -10,7 +10,7 @@
    <hr>
    <!--Only for admin users-->
    <div v-if="store.admin">
-       Which section do you want to edit? (enter 1-9) <input v-model="inputNumber" type="number">
+       Which section do you want to edit? (enter paragraph number) <input v-model="inputNumber" type="number">
        <button @click="getPById($event)">Search</button>
        <br>
        <br>
@@ -59,11 +59,11 @@ function getPById(){
         smID.value = public_pp.value[this.inputNumber-1]._id
 }}
 // Update policy using the updated values above
-function updatePolicy(){
+async function updatePolicy(){
     console.log(smID.value)
     console.log(smText.value)
     const data = {description: smText.value}
-    fetch(URL+`policies/pp/${smID.value}`, {
+    await fetch(URL+`policies/pp/${smID.value}`, {
         method: "PUT",
         headers:{
             'Content-Type': 'application/json'
@@ -78,5 +78,9 @@ function updatePolicy(){
         return res.json()})
     .then(data => console.log(data))
     .catch(err => console.log(err))
+    
+    if(smText.value !== null){
+        public_pp.value[this.inputNumber-1].description = smText.value
+    }  
 }
 </script>

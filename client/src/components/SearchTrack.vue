@@ -27,7 +27,7 @@
         <p v-if="(hideCompleted[index])">
             Album Title: {{titleRes.album_title}} || Track Date Created: {{titleRes.track_date_created}} || Track Duration: {{titleRes.track_duration}} 
         </p>
-        <a v-bind:href="('https://www.youtube.com/results?search_query='+ titleRes.album_title)" target="_blank">
+        <a v-bind:href="('https://www.youtube.com/results?search_query='+ titleRes.artist_name + ', ' + titleRes.album_title + ', ' + titleRes.track_title)" target="_blank">
             <button>Play On Youtube</button>
         </a>
             </li>

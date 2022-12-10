@@ -35,5 +35,10 @@ import { store } from './../store/index.js'
         Create/Delete DMCA notice & takedown policy components: <router-link to="/createdmca">Create/Delete DMCA components</router-link>
       </div>
     </h3>
+    <h3>
+      <div v-if="store.admin">
+        Click here to view DMCA takedown procedures <router-link to="/takedownprocedure">DMCA Takedown procedure</router-link>
+      </div>
+    </h3>
   </div>
 </template>
