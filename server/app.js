@@ -11,6 +11,7 @@ const cors = require('cors');
 const { ObjectID } = require('bson');
 const stringSimilarity = require("string-similarity");
 const { object } = require('joi');
+const { off } = require('process');
 
 // Create router
 const genresRoute = express.Router(),
@@ -39,8 +40,38 @@ tracksRoute.use(express.json());
 listsRoute.use(express.json());
 policyRoute.use(express.json());
 
+const schema = Joi.object({
+    username: Joi.string()
+    .alphanum()
+    .min(6)
+    .max(12)
+    .required(),
+
+    email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+
+    access_token: [
+        Joi.string(),
+        Joi.number()
+    ]
+})
+
 // Assign port value
 const port = process.env.PORT;
+
+app.post('/api/sanitize', (req, res) => {
+    const {error, value} = schema.validate({username: req.body.username, email: req.body.email})
+    if(error == undefined) {
+        res.send({
+            check: true
+        })
+    } else {
+        res.send({
+            check: false,
+            error: error.message
+        })
+    }
+})
 
 // Connect to mongoDB
 var database;
@@ -145,6 +176,32 @@ app.get('/api/playlists', (req, res) => {
             if(err) throw err
             res.send(result)
             db.close()
+        })
+    })
+})
+
+app.post('/api/user', (req, res) => {
+    var test = req.body
+    insertOneObj(test, "user")
+    res.send(test)
+})
+
+app.post('/api/duplicate', (req, res) => {
+    var data = req.body
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        dbo.collection("user").find({email: data.email}).toArray((err, result) => { 
+            if(err) throw err
+            dbo.collection("user").find({username: data.username}).toArray((error, result1) => { 
+                if(error) throw error
+                res.send({
+                    email: result,
+                    username: result1
+                })
+                db.close()
+            })
         })
     })
 })

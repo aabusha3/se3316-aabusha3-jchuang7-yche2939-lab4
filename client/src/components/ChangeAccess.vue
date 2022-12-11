@@ -43,12 +43,12 @@
 //if the user exists, it makes them admin
         if(result.value[0] != '') {
           axios.post('http://localhost:3000/api/admin', {
-                  username: result.value[0].username,
-                  email: result.value[0].email,
-                  password: result.value[0].password,
-                  validated: true,
-                  deactivated: false,
-                  original: false
+            username: result.value[0].username,
+            email: result.value[0].email,
+            password: result.value[0].password,
+            validated: true,
+            deactivated: false,
+            original: false
           })
         }
     }

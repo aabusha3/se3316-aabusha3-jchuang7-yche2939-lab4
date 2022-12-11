@@ -6,12 +6,13 @@
       <input type="username" name='username' v-model='username' placeholder='username'><br>
       <input for="email" name="email" v-model="email" placeholder="email"><br>
       <input type="password" name="password" v-model="password" placeholder="password"><br>
-      <button @click=create()>Create Account</button>
+      <button @click=createAccount()>Create Account</button>
   </div>
 </template>
 
 <script setup>
-    import axios from 'axios'
+    import { logicalExpression } from '@babel/types';
+import axios from 'axios'
 
     import { ref } from 'vue'
     const result = ref([])
@@ -26,54 +27,38 @@
     //         password: password.value
     //     })
 
-//function to create account
-    async function create() {
-      if(this.email != '' && this.password != '' && this.username != '') {
-        //input sanitization
-        if(/^[^@]+@\w+(\.\w+)+\w$/.test(this.email)) {
-          //fetching data
-          await fetch(`http://localhost:3000/api/email/${this.email}`)
-          .then(res => {
-            if(!res.ok) {
-                throw new Error(`${res}`)
-            }
-            return res.json()
-          })
-          .then(data => result.value = data)
-          .catch(err => console.log(err))
+    async function createAccount() {
+      if(password.value.length >= 6) {
+        const check = await axios.post('http://localhost:3000/api/sanitize', {
+          username: username.value,
+          email: email.value
+        })
 
-          console.log(result.value)
-
-        //compares data if theres its enough characters and the email does not exist already
-          if(username.value.length > 6 || password.value.length > 6) {
-            if(result.value == '') {
-              axios.post('http://localhost:3000/api/user', {
-                  username: username.value,
-                  email: email.value,
-                  password: password.value,
-                  validated: false,
-                  deactivated: false,
-                  original: false
-                })
-                toLogin()
-            } else { //conditions for the various misinputs
-              alert("This email already exists")
-            }
-          } else {
-            alert('Username and password must be at least 6 characters')
-          }
-          
+        if(!check.data.check) {
+          alert(check.data.error)
         } else {
-          confirm('Invalid email address')
+          const check2 = await axios.post('http://localhost:3000/api/duplicate', {
+            username: username.value,
+            email: email.value
+          })
+          if(check2.data.email.length == 0 && check2.data.username.length == 0) {
+            axios.post('http://localhost:3000/api/user', {
+              username: username.value,
+              email: email.value,
+              password: password.value,
+              validated: false,
+              deactivated: false,
+              original: false
+            })
+            toLogin()
+          } else if (check2.data.email.length != 0) {
+            alert("email is already in use")
+          } else {
+            alert("username is already in use")
+          }
         }
       } else {
-        if(this.username == '') {
-          alert('missing username')
-        } else if (this.email == '') {
-          alert('missing email')
-        } else {
-          alert('missing password')
-        }
+        alert("Password must be at least 6 characters long")
       }
     }
 
