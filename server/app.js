@@ -10,6 +10,7 @@ const { parse } = require('node-html-parser');
 const cors = require('cors');
 const { ObjectID } = require('bson');
 const stringSimilarity = require("string-similarity");
+const { object } = require('joi');
 
 // Create router
 const genresRoute = express.Router(),
@@ -619,6 +620,17 @@ userRouter.route('/getPublicPlaylists')
 
 })
 
+userRouter.route('/getPublicPlaylist/:id')
+    .get((req, res) => {
+        var id = req.params.id;       
+        var o_id = new ObjectId(id);
+        database.collection('public_playlist').findOne({_id: o_id}, function(err, result) {
+            if (err) throw err;
+            return res.send(result)
+          });
+
+})
+
 function strToArr(str){
     return str.split(',')
         .filter(e => typeof parseInt(e) === 'number'? parseInt(e):null)
@@ -707,27 +719,23 @@ tracksRoute.route('/angttt/:artist_name/:genre_title/:track_title')
 tracksRoute.route('/tt/:track_title')
     .get((req, res) => {  
         const tt = req.params.track_title
-        var betterMatch = {rating: 0, result: {}}
-        tracksRes = new Array(12).fill(betterMatch)
+        tracksRes = new Array(12).fill().map(() => ({rating: 0, result: {}}));
         fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
         .on('data', (data) => {
-            // Find temp matching each data
-            var temp = stringSimilarity.compareTwoStrings(tt, data.track_title)
+            // Find dice formula matching each data
+            const temp = stringSimilarity.compareTwoStrings(tt, data.track_title)
             // Find the minimum rating in the array
-            var min = tracksRes.map(e => e.rating).reduce((prev, curr) => prev < curr ? prev : curr)
-            console.log("min: " + min)
-            console.log("temp: " + temp)
-            console.log("data: " + data.track_title)
-            if (temp > min){// If temp > min
+            const min = tracksRes.map(e => e.rating).reduce((prev, curr) => prev < curr ? prev : curr)
+            //gets the index of the min element
+            const index = tracksRes.findIndex(e=>e.rating===min);
+            if (temp > min){// If dice formula match degree is bigger than the min element in the array
                 // Replace the lowest rating result in array with the new one
-                tracksRes[tracksRes.findIndex(e => e.rating == min)].rating = temp
-                console.log(tracksRes.findIndex((e) => {e.rating == min
-                console.log("e rating: " + e.rating)}))
-                tracksRes[tracksRes.findIndex(e => e.rating == min)].result = data
+                tracksRes[index].rating = temp
+                tracksRes[index].result = data                
             }
         })
-        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+        .on('end', () => {console.log('done');res.send(JSON.stringify(tracksRes.map(e=>e.result), ["track_id", "album_id", "album_title",
         "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
         "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
     });
