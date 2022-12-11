@@ -9,6 +9,7 @@ const MongoClient = require('mongodb').MongoClient;
 const { parse } = require('node-html-parser');
 const cors = require('cors');
 const { ObjectID } = require('bson');
+const stringSimilarity = require("string-similarity");
 
 // Create router
 const genresRoute = express.Router(),
@@ -608,7 +609,7 @@ function strToArr(str){
 
 
 //////////////////  lab 3
-const genresRes = [],
+var genresRes = [],
       artistsRes = [],
       albumsRes = [],
       tracksRes = [];
@@ -681,17 +682,50 @@ tracksRoute.route('/angttt/:artist_name/:genre_title/:track_title')
     
     });
 
+    /*If input <=4 characters, 2 mistaken characters not allowed*/
+    /*If input <=2 characters, soft match wont work*/
+    /*The longer the input the better the performance*/
 tracksRoute.route('/tt/:track_title')
-    .get((req, res) => {   
-        const max = 12 
-        const tt = strip(req.params.track_title);
+    .get((req, res) => {  
+        const tt = req.params.track_title
+        var betterMatch = {rating: 0, result: {}}
+        tracksRes = new Array(12).fill(betterMatch)
         fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
-        .on('data', (data) => {if((tracksRes.length<max) && (tt.length>0 && data.track_title.toLowerCase().includes(tt))) tracksRes.push(data);})
+        .on('data', (data) => {
+            // Find temp matching each data
+            var temp = stringSimilarity.compareTwoStrings(tt, data.track_title)
+            // Find the minimum rating in the array
+            var min = tracksRes.map(e => e.rating).reduce((prev, curr) => prev < curr ? prev : curr)
+            console.log("min: " + min)
+            console.log("temp: " + temp)
+            console.log("data: " + data.track_title)
+            if (temp > min){// If temp > min
+                // Replace the lowest rating result in array with the new one
+                tracksRes[tracksRes.findIndex(e => e.rating == min)].rating = temp
+                console.log(tracksRes.findIndex((e) => {e.rating == min
+                console.log("e rating: " + e.rating)}))
+                tracksRes[tracksRes.findIndex(e => e.rating == min)].result = data
+            }
+        })
         .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
         "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
         "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
     });
+
+    // tracksRoute.route('/tt/:track_title')
+    // .get((req, res) => {   
+    //     const max = 12 
+    //     const tt = strip(req.params.track_title);
+    //     fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
+    //     .on('error', (error) => {return res.status(500).send(error.message)})
+    //     .on('data', (data) => {
+    //         if((tracksRes.length<max) && (tt.length>0 && data.track_title.toLowerCase().includes(tt))) 
+    //         {tracksRes.push(data)};})
+    //     .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+    //     "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
+    //     "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
+    // });
 
 tracksRoute.route('/at/:album_title')
     .get((req, res) => {   
