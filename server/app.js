@@ -768,24 +768,51 @@ tracksRoute.route('/at/:album_title')
 
 tracksRoute.route('/gr/:genre_title')
     .get((req, res) => {   
-        const max = 12 
-        const gr = strip(req.params.genre_title);
+        const gr = req.params.genre_title
+        tracksRes = new Array(12).fill().map(() => ({rating: 0, result: {}}));
         fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
-        .on('data', (data) => {if((tracksRes.length<max) && (gr.length>0 && data.track_genres.toLowerCase().includes(gr))) tracksRes.push(data);})
-        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+        .on('data', (data) => {
+            // Find dice formula matching each data
+            try{
+                const temp = stringSimilarity.compareTwoStrings(gr, JSON.parse(data.track_genres.replace(/'/g, '"'))[0].genre_title)
+                // Find the minimum rating in the array
+                const min = tracksRes.map(e => e.rating).reduce((prev, curr) => prev < curr ? prev : curr)
+                //gets the index of the min element
+                const index = tracksRes.findIndex(e=>e.rating===min);
+                if (temp > min){// If dice formula match degree is bigger than the min element in the array
+                    // Replace the lowest rating result in array with the new one
+                    tracksRes[index].rating = temp
+                    tracksRes[index].result = data                
+                }
+            }
+            catch(e){}
+        })
+        .on('end', () => {console.log('done');res.send(JSON.stringify(tracksRes.map(e=>e.result), ["track_id", "album_id", "album_title",
         "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
         "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
     });
 
 tracksRoute.route('/an/:artist_name')
     .get((req, res) => {   
-        const max = 12 
-        const at = strip(req.params.artist_name);
+        const an = req.params.artist_name
+        tracksRes = new Array(12).fill().map(() => ({rating: 0, result: {}}));
         fs.createReadStream('./dataset/raw_tracks.csv').pipe(csv())
         .on('error', (error) => {return res.status(500).send(error.message)})
-        .on('data', (data) => {if((tracksRes.length<max) && (at.length>0 && data.artist_name.toLowerCase().includes(at))) tracksRes.push(data);})
-        .on('end', () => {res.send(JSON.stringify(tracksRes, ["track_id", "album_id", "album_title",
+        .on('data', (data) => {
+            // Find dice formula matching each data
+            const temp = stringSimilarity.compareTwoStrings(an, data.artist_name)
+            // Find the minimum rating in the array
+            const min = tracksRes.map(e => e.rating).reduce((prev, curr) => prev < curr ? prev : curr)
+            //gets the index of the min element
+            const index = tracksRes.findIndex(e=>e.rating===min);
+            if (temp > min){// If dice formula match degree is bigger than the min element in the array
+                // Replace the lowest rating result in array with the new one
+                tracksRes[index].rating = temp
+                tracksRes[index].result = data                
+            }
+        })
+        .on('end', () => {console.log('done');res.send(JSON.stringify(tracksRes.map(e=>e.result), ["track_id", "album_id", "album_title",
         "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
         "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
     });
