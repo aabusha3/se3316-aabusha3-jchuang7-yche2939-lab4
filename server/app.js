@@ -279,6 +279,25 @@ app.post('/api/login', (req, res) => {
         })
     })
 })
+
+//request to hide and unhide a comment on a certain playlist
+app.put('/api/playlist/:comment', (req, res) => {
+    //connect to database
+    ///api/playlist/name-1
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if(err) throw err
+        var reference = req.params.comment.split("-")
+        var dbo = db.db("lab-4") //database reference
+        //choose collection and returns entire table
+        var newValues = {$set: {[`comments.${reference[1]}.hidden`]: req.body.hidden}}
+        dbo.collection("private_playlist").updateOne({name: reference[0]}, newValues,(err, result) => { 
+            if(err) throw err
+            res.send(result)
+            db.close()
+        })
+    })
+})
+
 ////////////////////////justin
 
 ////////////////////////chen

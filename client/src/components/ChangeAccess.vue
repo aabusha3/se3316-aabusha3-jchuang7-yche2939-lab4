@@ -2,11 +2,11 @@
 <template> 
 <!-- html -->
   <div class="create">
-      <h1>User List</h1>
+      <h1>Change Access</h1>
       <input type="username" name='username' v-model='username' placeholder='username'><br>
       <button @click="privilieges">Give Admin</button>
-      <button>Hide</button>
-      <button>Unhide</button>
+      <button @click="hide()">Hide</button>
+      <button @click="unhide()">Unhide</button>
       <button @click="deactivate()">Deactivate</button>
       <button @click="activate()">Activate</button>
   </div>
@@ -64,6 +64,20 @@
   async function deactivate () {
     axios.put(`http://localhost:3000/api/deactivate/${username.value}`, {
       deactivated: true
+    })
+  }
+
+  //function to hide comment
+  async function hide () {
+    axios.put(`http://localhost:3000/api/playlist/${username.value}`, {
+      hidden: true
+    })
+  }
+
+  //function to unhide comment
+  async function unhide () {
+    axios.put(`http://localhost:3000/api/playlist/${username.value}`, {
+      hidden: false
     })
   }
 </script>
