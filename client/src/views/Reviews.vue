@@ -19,7 +19,7 @@ async function submitReview(event){
     const data = await res.json();
     rmsg.value = data;
 
-    setTimeout(updateReviews, 600)
+    setTimeout(updateReviews, 2000)
 }
 
 async function updateReviews(){
@@ -89,7 +89,7 @@ onMounted(() => {getPlaylist()})
             <td>{{list.creator_username}}</td>
             <td>{{list.tracks.length}}</td>
             <td>{{list.duration}}</td>
-            <td>{{list.comments.length > 0? ((list.comments.map(e=>e.rating).reduce((accumulator, currentValue) => accumulator + currentValue) / list.comments.length.toFixed(2))) : 0}} / 5</td>
+            <td>{{list.comments.length > 0? ((list.comments.map(e=>e.rating).reduce((accumulator, currentValue) => accumulator + currentValue) / list.comments.length).toFixed(2)) : 0}} / 5</td>
             <td>
             <button @click="(() => {hideListInfo = !hideListInfo; showTrack = false; if(!hideListInfo)tmsg = 'Tracks Info Hidden';})">
                 {{hideListInfo? 'hide':'show more'}}

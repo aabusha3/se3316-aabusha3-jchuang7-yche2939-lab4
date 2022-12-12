@@ -710,7 +710,8 @@ reviewsRoute.route('/addReview/:name/:username/:review/:rating')
             commenter: req.params.username, 
             comment: req.params.review,
             rating: parseInt(req.params.rating),
-            hidden: false
+            hidden: false,
+            dateCreted: new Date().toString()
         }
         const newvalues = {$push: {comments: newReview}}
 

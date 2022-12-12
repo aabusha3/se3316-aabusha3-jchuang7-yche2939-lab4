@@ -18,9 +18,9 @@ import axios from 'axios'
     const result = ref([])
     const URL = "http://localhost:3000/api/"
 
-    const username = ref(null)
-    const email = ref(null)
-    const password = ref(null)
+    const username = ref('')
+    const email = ref('')
+    const password = ref('')
 
     // axios.post('http://localhost:3000/api/user', {
     //         email: email.value,
