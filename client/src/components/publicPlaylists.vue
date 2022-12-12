@@ -65,7 +65,7 @@ onMounted(() => {getPlaylists()})
         <td>{{list.creator_username}}</td>
         <td>{{list.tracks.length}}</td>
         <td>{{list.duration}}</td>
-        <td>{{list.comments.length > 0? ((list.comments.map(e=>e.rating).reduce((accumulator, currentValue) => accumulator + currentValue) / list.comments.length)) : 0}} / 5</td>
+        <td>{{list.comments.length > 0? ((list.comments.map(e=>e.rating).reduce((accumulator, currentValue) => accumulator + currentValue) / list.comments.length).toFixed(2)) : 0}} / 5</td>
         <td>
           <button @click="(() => {hideListInfo[index] = !hideListInfo[index]; showTrack = false; if(!hideListInfo[index])tmsg = 'Tracks Info Hidden';})">
             {{hideListInfo[index]? 'hide':'show more'}}
