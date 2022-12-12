@@ -20,6 +20,7 @@ const genresRoute = express.Router(),
       tracksRoute = express.Router(),
       listsRoute = express.Router(),
       policyRoute = express.Router(),
+      reviewsRoute = express.Router(),
       userRouter = express.Router();
 
 app.use(express.json());
@@ -31,6 +32,7 @@ app.use('/api/albums', albumsRoute);
 app.use('/api/tracks', tracksRoute);
 app.use('/api/lists', listsRoute);
 app.use('/api/policies', policyRoute);
+app.use('/api/reviews', reviewsRoute);
 app.use('/api/user', userRouter);
 
 genresRoute.use(express.json());
@@ -677,15 +679,51 @@ userRouter.route('/getPublicPlaylists')
 
 })
 
-userRouter.route('/getPublicPlaylist/:id')
+reviewsRoute.route('/getPlaylist/:id')
     .get((req, res) => {
-        var id = req.params.id;       
-        var o_id = new ObjectId(id);
+        const id = req.params.id;       
+        const o_id = new ObjectId(id);
         database.collection('public_playlist').findOne({_id: o_id}, function(err, result) {
             if (err) throw err;
-            return res.send(result)
+            return res.send([result])
           });
+})
 
+
+reviewsRoute.route('/hideShow/:name/:index/:hide')
+    .get((req, res) => {
+        const isTrueSet = (req.params.hide === 'true');
+        const myquery = {name: req.params.name}
+        const newvalues = {$set: {[`comments.${parseInt(req.params.index)}.hidden`]: isTrueSet}}
+        updateOneObj(myquery, newvalues, "public_playlist")
+        updateOneObj(myquery, newvalues, "private_playlist")
+        res.send(JSON.stringify(isTrueSet? 'Comment Hidden':'Comment Shown'))
+})
+
+reviewsRoute.route('/addReview/:name/:username/:review/:rating')
+    .get((req, res) => {
+        const myquery = {name: req.params.name}
+        const newReview = {
+            commenter: req.params.username, 
+            comment: req.params.review,
+            rating: parseInt(req.params.rating),
+            hidden: false
+        }
+        const newvalues = {$push: {comments: newReview}}
+
+        updateOneObj(myquery, newvalues, "public_playlist")
+        updateOneObj(myquery, newvalues, "private_playlist")
+        
+        res.send(JSON.stringify('Review Added'))
+})
+
+reviewsRoute.route('/updateReview/:name')
+    .get((req, res) => {
+        const myquery = {name: req.params.name}
+        database.collection('public_playlist').find(myquery).toArray(function(err, result) {
+            if (err) throw err;
+            return res.send(result[0].comments)
+        })
 })
 
 function strToArr(str){
@@ -869,7 +907,7 @@ tracksRoute.route('/an/:artist_name')
                 tracksRes[index].result = data                
             }
         })
-        .on('end', () => {console.log('done');res.send(JSON.stringify(tracksRes.map(e=>e.result), ["track_id", "album_id", "album_title",
+        .on('end', () => {res.send(JSON.stringify(tracksRes.map(e=>e.result), ["track_id", "album_id", "album_title",
         "artist_id", "artist_name", "tags", "track_date_created", "track_date_recorded", 
         "track_duration", "track_genres", "track_number", "track_title"])); tracksRes.length=0;});
     });

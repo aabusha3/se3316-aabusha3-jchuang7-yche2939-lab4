@@ -109,6 +109,11 @@ const routes = [
     path: '/takedownprocedure',
     name: 'takedownprocedure',
     component: () => import( '../views/TakedownProcedureView.vue')
+},
+{
+    path: '/review',
+    name: 'reveiw',
+    component: () => import( '../views/Reviews.vue')
   }
 ]
 

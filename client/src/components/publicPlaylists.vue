@@ -1,11 +1,15 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { store } from './../store/index.js'
-
+import router from '../router'
 const hideListInfo = ref(Array(10).fill(false))
 
 const url = `${store.url}/user`
 
+function toReview(id){
+  store.trackToReview = id
+  router.push('/review')
+}
 
 function arrToStr(arr){
   return arr.toString();
@@ -51,6 +55,7 @@ onMounted(() => {getPlaylists()})
         <th>Duration</th>
         <th>Average Rating</th>
         <th>View More</th>
+        <th>Comment</th>
       </tr>
     </thead>
     <tbody>
@@ -67,15 +72,9 @@ onMounted(() => {getPlaylists()})
           </button>
           <table v-if="(hideListInfo[index])">
             <thead>
-              <th>
-                Description
-              </th>
-              <th>
-                Tracks
-              </th>
-              <th>
-                View More
-              </th>
+              <th>Description</th>
+              <th>Tracks</th>
+              <th>View More</th>
             </thead>
             <tbody>
               <td>{{list.desc}}</td>
@@ -85,6 +84,10 @@ onMounted(() => {getPlaylists()})
               </td>
             </tbody>
           </table>
+        </td>
+        <td>
+          <button @click="toReview(list._id)">Leave A Comment
+          </button>
         </td>
       </tr>
     </tbody>
@@ -112,9 +115,9 @@ onMounted(() => {getPlaylists()})
         <td>{{track.artist_name}}</td>
         <td>{{track.album_title}}</td>
         <td>{{track.track_duration}}</td>
-        <td>{{(JSON.parse(track.track_genres.replace(/'/g, '"'))[0].genre_title || 'unable to retrieve genere')}}</td>
+        <td>{{(JSON.parse(track.track_genres.replace(/'/g, '"'))[0].genre_title || 'No Genere Listed')}}</td>
         <td>
-          <a v-bind:href="('https://www.youtube.com/results?search_query='+ track.track_title + ' by ' + track.artist_name + ' ' + track.album_title)" target="_blank">
+          <a v-bind:href="('https://www.youtube.com/results?search_query='+ track.artist_name + ', ' + track.album_title + ', ' + track.track_title)" target="_blank">
             <button>Play</button>
           </a>
         </td>

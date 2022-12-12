@@ -5,5 +5,7 @@ export const store = reactive({
   public: true,
   username: '',
   admin: false,
-  url: 'http://localhost:3000/api'
+  url: 'http://localhost:3000/api',
+  trackToReview: '',
+  reviewToDMCA: ''
 })
