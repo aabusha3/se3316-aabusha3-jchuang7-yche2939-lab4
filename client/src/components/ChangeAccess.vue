@@ -3,7 +3,7 @@
 <!-- html -->
   <div class="create">
       <h1>Change Access</h1>
-      <input type="username" name='username' v-model='username' placeholder='username'><br>
+      <input type="username" name='username' v-model='username' placeholder='enter name'><br>
       <button @click="privilieges">Give Admin</button>
       <button @click="hide()">Hide</button>
       <button @click="unhide()">Unhide</button>
