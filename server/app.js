@@ -133,18 +133,18 @@ function updateOneObj(myquery, newvalues, table){
 
 ////////////////////////justin
 //request to insert into db
-app.post('/api/playlists', (req, res) => {
-    var test = {name: "jay", tracks: "2,3"}
-    insertOneObj(test, "public_playlist")
-    res.send(test)
-})
+// app.post('/api/playlists', (req, res) => {
+//     var test = {name: "jay", tracks: "2,3"}
+//     insertOneObj(test, "public_playlist")
+//     res.send(test)
+// })
 
-//request to delete from playlist db
-app.delete('/api/playlists', (req, res) => {
-    var myquery = {name: "jay"}
-    deleteOneObj(myquery, 'public_playlist')
-    res.send(myquery)
-})
+// //request to delete from playlist db
+// app.delete('/api/playlists', (req, res) => {
+//     var myquery = {name: "jay"}
+//     deleteOneObj(myquery, 'public_playlist')
+//     res.send(myquery)
+// })
 
 //request to add to admin db and delete from user db
 app.post('/api/admin', (req, res) => {
@@ -352,8 +352,11 @@ app.put('/api/playlist/:comment', (req, res) => {
         var newValues = {$set: {[`comments.${reference[1]}.hidden`]: req.body.hidden}}
         dbo.collection("private_playlist").updateOne({name: reference[0]}, newValues,(err, result) => { 
             if(err) throw err
-            res.send(result)
-            db.close()
+            dbo.collection("public_playlist").updateOne({name: reference[0]}, newValues,(error, result1) => { 
+                if(error) throw error
+                res.send(result)
+                db.close()
+            })
         })
     })
 })

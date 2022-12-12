@@ -59,8 +59,8 @@ async function getPlaylists() {
 const msg = ref('');
 async function updateVis(id, name, vis){
   this.result[id].public = !this.result[id].public;
-  const url = `${url}/updateVis/${store.username}/${name}/${vis}`;
-  const res = await fetch(url);
+  const uurl = `${url}/updateVis/${store.username}/${name}/${vis}`;
+  const res = await fetch(uurl);
   const data = await res.json();
   msg.value = data;
 }
