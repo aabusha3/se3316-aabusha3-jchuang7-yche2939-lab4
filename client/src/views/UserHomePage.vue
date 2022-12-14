@@ -103,7 +103,7 @@ onMounted(() => {getPlaylists()})
             <update @done="upInfo => updateDone(index, upInfo)" :name="list.name" :desc="list.desc" :tracks="list.tracks.toString()"/>
           </div>
         </td>
-        <td>{{list.dateLastModed}}</td>
+        <td>{{new Date(list.dateLastModed)}}</td>
       </tr>
     </tbody>
   </table>

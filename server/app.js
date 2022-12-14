@@ -549,11 +549,11 @@ userRouter.route('/trackInfo/:tracks')
     });
 
 
-userRouter.route('/updateList/:user/:oldName/:name/:desc/:tracks/:LDM/:time')
+userRouter.route('/updateList/:user/:oldName/:name/:desc/:tracks/:dur')
     .get((req, res) => {   
         const Tracks = strToArr(req.params.tracks)
-        var quarry = {name: req.params.oldName, creator_username: req.params.user.toLowerCase()}
-        var update = { $set: {name: req.params.name, desc: req.params.desc, tracks: Tracks, dateLastModed: req.params.LDM, duration: req.params.time}}
+        const quarry = {name: req.params.oldName, creator_username: req.params.user.toLowerCase()}
+        const update = { $set: {name: req.params.name, desc: req.params.desc, tracks: Tracks, dateLastModed: new Date(), duration: req.params.dur}}
         updateOneObj(quarry, update, "private_playlist")
 
         var find = database.collection('public_playlist').find(quarry).toArray(function(err, result) {
@@ -628,11 +628,11 @@ userRouter.route('/uniqueName/:user/:name')
 
 })
 
-userRouter.route('/newList/:user/:name/:desc/:tracks/:time')
+userRouter.route('/newList/:user/:name/:desc/:tracks/:dur')
     .get((req, res) => {
         const Tracks = strToArr(req.params.tracks)
         var obj = {name: req.params.name, desc:req.params.desc, imgURL:"require('../assets/music-cover.png')", 
-            tracks:Tracks, public:false, creator_username: req.params.user.toLowerCase(), dateLastModed: new Date().toString(), duration: req.params.time}
+            tracks:Tracks, public:false, creator_username: req.params.user.toLowerCase(), dateLastModed: new Date(), duration: req.params.dur}
         insertOneObj(obj, "private_playlist")
         res.send(obj)
 })
@@ -711,7 +711,7 @@ reviewsRoute.route('/addReview/:name/:username/:review/:rating')
             comment: req.params.review,
             rating: parseInt(req.params.rating),
             hidden: false,
-            dateCreted: new Date().toString()
+            dateCreted: new Date()
         }
         const newvalues = {$push: {comments: newReview}}
 

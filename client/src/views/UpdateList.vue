@@ -79,8 +79,8 @@ function updateEntry(event){
       //updates existing entry in the databse
       if(Desc.value.length === 0) Desc.value = ' ';
       const updatetNew = async function(){
-        const LDM = new Date().toString();
-        const uurl = `${url}/updateList/${store.username}/${props.name}/${Name.value}/${Desc.value}/${Tracks.value}/${LDM}/${fdata.totalTime}`;
+        const LDM = new Date();
+        const uurl = `${url}/updateList/${store.username}/${props.name}/${Name.value}/${Desc.value}/${Tracks.value}/${fdata.totalTime}`;
         const ures = await fetch(uurl);
         const udata = await ures.json();
         msg.value = '';
